@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet, StatusBar, ImageBackground } 
 const InicioScreen = ({ navigation }) => {
     return (
         <ImageBackground
-            source={{ uri: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=800&q=80' }}
+            source={require('./img/sesi.jpeg')}
             style={styles.backgroundImage}
             resizeMode="cover"
         >
@@ -21,7 +21,7 @@ const InicioScreen = ({ navigation }) => {
 
                         <TouchableOpacity
                             style={styles.entrarButton}
-                            onPress={() => navigation.navigate('TelaInicio')}
+                            onPress={() => navigation.navigate('Login')}
                         >
                             <Text style={styles.entrarButtonText}>Entrar</Text>
                         </TouchableOpacity>
@@ -30,13 +30,6 @@ const InicioScreen = ({ navigation }) => {
                             <Text style={styles.contaText}>Não tem uma conta?</Text>
                             <TouchableOpacity onPress={() => navigation.navigate('Cadastro')}>
                                 <Text style={styles.loginText}>Cadastro</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={styles.loginSection}>
-                            <Text style={styles.contaText}>Já tem uma conta?</Text>
-                            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                                <Text style={styles.loginText}>Login</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -54,62 +47,46 @@ const styles = StyleSheet.create({
     },
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(255, 100, 80, 0.6)',
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
     },
     content: {
         flex: 1,
         justifyContent: 'flex-end',
-        paddingHorizontal: 20,
-        paddingBottom: 50,
+        paddingBottom: 0,
     },
     card: {
         backgroundColor: '#FFFFFF',
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 140,
         paddingHorizontal: 28,
         paddingTop: 36,
-        paddingBottom: 40,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: -4,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 8,
+        paddingBottom: 90,
     },
     bemVindoTitle: {
         fontSize: 32,
         fontWeight: 'bold',
-        color: '#C62828',
+        color: '#333333',
         marginBottom: 12,
+        textAlign: 'center',
     },
     subtitle: {
         fontSize: 14,
         color: '#424242',
         lineHeight: 20,
         marginBottom: 28,
+        textAlign: 'center',
     },
     entrarButton: {
         backgroundColor: '#D32F2F',
-        borderRadius: 30,
-        paddingVertical: 15,
+        borderRadius: 8,
+        paddingVertical: 16,
         alignItems: 'center',
         marginBottom: 16,
-        shadowColor: '#D32F2F',
-        shadowOffset: {
-            width: 0,
-            height: 3,
-        },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-        elevation: 5,
     },
     entrarButtonText: {
         color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
-        letterSpacing: 0.5,
+        fontSize: 18,
+        fontWeight: 'bold',
     },
     loginSection: {
         flexDirection: 'row',
