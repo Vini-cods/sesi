@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar, ImageBackground } from 'react-native';
 
-const InicioScreen = () => {
+const InicioScreen = ({ navigation }) => {
     return (
         <ImageBackground
             source={{ uri: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=800&q=80' }}
@@ -19,13 +19,23 @@ const InicioScreen = () => {
                             Acesse sua conta SESI e mantenha-se conectado ao conhecimento e à inovação.
                         </Text>
 
-                        <TouchableOpacity style={styles.entrarButton}>
+                        <TouchableOpacity
+                            style={styles.entrarButton}
+                            onPress={() => navigation.navigate('TelaInicio')}
+                        >
                             <Text style={styles.entrarButtonText}>Entrar</Text>
                         </TouchableOpacity>
 
                         <View style={styles.loginSection}>
                             <Text style={styles.contaText}>Não tem uma conta?</Text>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigation.navigate('Cadastro')}>
+                                <Text style={styles.loginText}>Cadastro</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={styles.loginSection}>
+                            <Text style={styles.contaText}>Já tem uma conta?</Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                                 <Text style={styles.loginText}>Login</Text>
                             </TouchableOpacity>
                         </View>

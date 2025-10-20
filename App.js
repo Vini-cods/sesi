@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import CarregamentoScreen from './CarregamentoScreen';
 import InicioScreen from './InicioScreen';
+import TelaInicioScreen from './TelaInicioScreen';
+import CadastroScreen from './CadastroScreen';
+import LoginScreen from './LoginScreen';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -18,5 +25,17 @@ export default function App() {
     return <CarregamentoScreen />;
   }
 
-  return <InicioScreen />;
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="Inicio"
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="Inicio" component={InicioScreen} />
+        <Stack.Screen name="TelaInicio" component={TelaInicioScreen} />
+        <Stack.Screen name="Cadastro" component={CadastroScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 }
