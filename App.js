@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import CarregamentoScreen from './CarregamentoScreen';
 import InicioScreen from './InicioScreen';
 import TelaDesperdicioScreen from './TelaDesperdicioScreen';
+import TelaPesquisaScreen from './TelaPesquisaScreen';
 import CadastroScreen from './CadastroScreen';
 import LoginScreen from './LoginScreen';
 
@@ -33,9 +34,11 @@ export default function App() {
       >
         <Stack.Screen name="Inicio" component={InicioScreen} />
         <Stack.Screen name="TelaDesperdicio" component={TelaDesperdicioScreen} />
+        <Stack.Screen name="Pesquisa" component={TelaPesquisaScreen} />
         <Stack.Screen name="Cadastro" component={CadastroScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
       </Stack.Navigator>
+      <StatusBar style="auto" />
     </NavigationContainer>
   );
 }

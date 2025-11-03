@@ -1,97 +1,127 @@
 import React from 'react';
-import { View, Text, StyleSheet, StatusBar, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, TouchableOpacity, ScrollView, Dimensions, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Svg, { Line, Polyline, Circle, Text as SvgText } from 'react-native-svg';
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 const TelaDesperdicioScreen = ({ navigation }) => {
-    // Dados fictícios para os gráficos
-    const dadosDesperdicio = [
-        { dia: 'Seg', valor: 20 },
-        { dia: 'Ter', valor: 35 },
-        { dia: 'Qua', valor: 28 },
-        { dia: 'Qui', valor: 42 },
-        { dia: 'Sex', valor: 30 },
-    ];
-
     const dadosDecibeis = [
-        { hora: '08:00', valor: 55 },
-        { hora: '10:00', valor: 78 },
-        { hora: '12:00', valor: 85 },
-        { hora: '14:00', valor: 52 },
-        { hora: '16:00', valor: 80 },
+        { x: 0, y: 50 },
+        { x: 1, y: 45 },
+        { x: 2, y: 55 },
+        { x: 3, y: 75 },
+        { x: 4, y: 60 },
+        { x: 5, y: 70 },
+        { x: 6, y: 55 },
+        { x: 7, y: 65 },
+        { x: 8, y: 85 },
+        { x: 9, y: 60 },
+        { x: 10, y: 70 },
     ];
 
-    const dadosNiveisRuido = [
-        { nivel: 'Baixo', valor: 45, cor: '#4CAF50' },
-        { nivel: 'Moderado', valor: 65, cor: '#FF9800' },
-        { nivel: 'Alto', valor: 85, cor: '#F44336' },
-        { nivel: 'Muito Alto', valor: 105, cor: '#D32F2F' },
-    ];
+    const renderLineChart = () => {
+        const maxY = 100;
+        const chartHeight = 120;
+        const chartWidth = screenWidth - 100;
 
-    const renderBarGraph = (dados, cor, alturaMaxima = 180) => {
-        const maxValor = Math.max(...dados.map(item => item.valor));
+        const points = dadosDecibeis.map((point, index) => {
+            const x = (index / (dadosDecibeis.length - 1)) * chartWidth;
+            const y = chartHeight - (point.y / maxY) * chartHeight;
+            return `${x},${y}`;
+        }).join(' ');
+
+        const peakX = (8 / (dadosDecibeis.length - 1)) * chartWidth;
+        const peakY = chartHeight - (85 / maxY) * chartHeight;
 
         return (
-            <View style={[styles.graphContainer, { height: alturaMaxima }]}>
-                {dados.map((item, index) => (
-                    <View key={index} style={styles.barContainer}>
-                        <View style={styles.barWrapper}>
-                            <View
-                                style={[
-                                    styles.bar,
-                                    {
-                                        height: `${(item.valor / maxValor) * 80}%`,
-                                        backgroundColor: cor
-                                    }
-                                ]}
-                            />
-                            <Text style={styles.barValue}>{item.valor}</Text>
-                        </View>
-                        <Text style={styles.barLabel}>{item.dia || item.hora}</Text>
-                    </View>
-                ))}
-            </View>
-        );
-    };
+            <View style={styles.chartContainer}>
+                <View style={styles.yAxisLabels}>
+                    <Text style={styles.axisLabel}>100</Text>
+                    <Text style={styles.axisLabel}>75</Text>
+                    <Text style={styles.axisLabel}>50</Text>
+                    <Text style={styles.axisLabel}>25</Text>
+                    <Text style={styles.axisLabel}>0</Text>
+                </View>
+                <View style={styles.chartArea}>
+                    <Svg width={chartWidth} height={chartHeight}>
+                        {[0, 25, 50, 75, 100].map((value) => {
+                            const y = chartHeight - (value / maxY) * chartHeight;
+                            return (
+                                <Line
+                                    key={value}
+                                    x1="0"
+                                    y1={y}
+                                    x2={chartWidth}
+                                    y2={y}
+                                    stroke="#f0f0f0"
+                                    strokeWidth="1"
+                                    strokeDasharray="4,4"
+                                />
+                            );
+                        })}
 
-    const renderNoiseLevelGraph = () => {
-        return (
-            <View style={styles.noiseLevelContainer}>
-                {dadosNiveisRuido.map((item, index) => (
-                    <View key={index} style={styles.noiseLevelItem}>
-                        <View style={styles.noiseLevelHeader}>
-                            <View style={[styles.noiseLevelDot, { backgroundColor: item.cor }]} />
-                            <Text style={styles.noiseLevelTitle}>{item.nivel}</Text>
-                        </View>
-                        <View style={styles.noiseLevelBarContainer}>
-                            <View
-                                style={[
-                                    styles.noiseLevelBar,
-                                    {
-                                        width: `${(item.valor / 120) * 100}%`,
-                                        backgroundColor: item.cor
-                                    }
-                                ]}
-                            />
-                        </View>
-                        <Text style={styles.noiseLevelValue}>{item.valor} dB</Text>
-                    </View>
-                ))}
+                        <Polyline
+                            points={points}
+                            fill="none"
+                            stroke="#E57373"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+
+                        <Circle
+                            cx={peakX}
+                            cy={peakY}
+                            r="6"
+                            fill="#D32F2F"
+                        />
+                        <Circle
+                            cx={peakX}
+                            cy={peakY}
+                            r="3"
+                            fill="white"
+                        />
+
+                        <SvgText
+                            x={peakX}
+                            y={peakY - 15}
+                            textAnchor="middle"
+                            fill="#D32F2F"
+                            fontSize="12"
+                            fontWeight="bold"
+                        >
+                            85dB
+                        </SvgText>
+
+                        <Line
+                            x1={peakX}
+                            y1={peakY}
+                            x2={peakX}
+                            y2={chartHeight}
+                            stroke="#D32F2F"
+                            strokeWidth="1"
+                            strokeDasharray="4,4"
+                        />
+                    </Svg>
+                </View>
             </View>
         );
     };
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="light-content" backgroundColor="#D32F2F" />
+            <StatusBar barStyle="dark-content" backgroundColor="#F5F5F5" />
 
-            {/* Header com ícone de perfil */}
+            {/* Header com perfil */}
             <View style={styles.header}>
-                <Text style={styles.title}>Desperdício & Ruído</Text>
-                <TouchableOpacity style={styles.profileButton}>
-                    <Ionicons name="person-circle" size={34} color="#FFFFFF" />
-                </TouchableOpacity>
+                <View style={styles.profilePill}>
+                    <View style={styles.avatar} />
+                    <View>
+                        <Text style={styles.profileName}>Bem Vinda</Text>
+                        <Text style={styles.profileSubtext}>Danielle da Silva Rogério</Text>
+                    </View>
+                </View>
             </View>
 
             <ScrollView
@@ -99,77 +129,85 @@ const TelaDesperdicioScreen = ({ navigation }) => {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
             >
+                {/* Cards principais */}
+                <View style={styles.mainCards}>
+                    {/* Card Desperdício */}
+                    <View style={styles.cardDesperdicio}>
+                        <Text style={styles.cardTitle}>Desperdício</Text>
+                        <View style={styles.barChartIcon}>
+                            <View style={[styles.miniBar, { height: 30 }]} />
+                            <View style={[styles.miniBar, { height: 50 }]} />
+                            <View style={[styles.miniBar, { height: 40 }]} />
+                            <View style={[styles.miniBar, { height: 60 }]} />
+                        </View>
+                    </View>
 
-                {/* Gráfico de Desperdício */}
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>Desperdício Semanal</Text>
-                        <Text style={styles.sectionSubtitle}>Total: 155 kg</Text>
-                    </View>
-                    <View style={styles.graphCard}>
-                        {renderBarGraph(dadosDesperdicio, '#D32F2F')}
-                    </View>
-                </View>
-
-                {/* Gráfico de Decibéis do Refeitório */}
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>Níveis de Ruído - Refeitório</Text>
-                        <Text style={styles.sectionSubtitle}>Hoje</Text>
-                    </View>
-                    <View style={styles.graphCard}>
-                        {renderBarGraph(dadosDecibeis, '#4CAF50')}
-                        <View style={styles.graphFooter}>
-                            <Text style={styles.graphFooterText}>Pico: 85 dB às 12:00</Text>
+                    {/* Card Contra Desperdício */}
+                    <View style={styles.cardContra}>
+                        <View style={styles.circleDecoration} />
+                        <View style={styles.badge}>
+                            <Text style={styles.badgeText}>DIA MUNDIAL</Text>
+                            <Text style={styles.badgeTitle}>CONTRA O</Text>
+                            <Text style={styles.badgeSubtitle}>DESPERDÍCIO</Text>
                         </View>
                     </View>
                 </View>
 
-                {/* Escala de Níveis de Ruído */}
+                {/* Gráfico de Decibéis */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Escala de Decibéis</Text>
-                    <View style={styles.graphCard}>
-                        {renderNoiseLevelGraph()}
-                        <View style={styles.legend}>
-                            <Text style={styles.legendText}>Níveis de ruído recomendados para refeitórios: 45-65 dB</Text>
-                        </View>
+                    <Text style={styles.sectionLabel}>Decibéis</Text>
+                    <View style={styles.chartCard}>
+                        {renderLineChart()}
                     </View>
                 </View>
 
-                {/* Dica de Conservação */}
-                <View style={styles.tipCard}>
-                    <Ionicons name="bulb-outline" size={24} color="#FFA000" />
-                    <View style={styles.tipContent}>
-                        <Text style={styles.tipTitle}>Dica do Dia</Text>
-                        <Text style={styles.tipText}>Reduzir o ruído no refeitório pode diminuir o desperdício em até 15%</Text>
-                    </View>
-                </View>
+                {/* Espaçamento adicional para descer os elementos */}
+                <View style={styles.spacing} />
 
-                {/* Espaço extra para evitar que o conteúdo fique muito próximo da barra inferior */}
-                <View style={styles.bottomSpacer} />
+                {/* Cards inferiores */}
+                <View style={styles.bottomCards}>
+                    {/* Card Emoji - Substituído por imagem do sol */}
+                    <View style={styles.cardEmoji}>
+                        <Image
+                            source={require('./img/sol.png')}
+                            style={styles.solImage}
+                            resizeMode="contain"
+                        />
+                    </View>
+
+                    {/* Card Imagem - AGORA É UM BOTÃO */}
+                    <TouchableOpacity
+                        style={styles.cardImage}
+                        onPress={() => navigation.navigate('Pesquisa')}
+                    >
+                        <Image
+                            source={require('./img/cenoura.jpeg')}
+                            style={styles.cenouraImage}
+                            resizeMode="contain"
+                        />
+                    </TouchableOpacity>
+                </View>
 
             </ScrollView>
 
             {/* Barra inferior de navegação */}
             <View style={styles.bottomNav}>
-                <TouchableOpacity style={styles.navItem}>
-                    <Ionicons name="home" size={26} color="#D32F2F" />
-                    <Text style={styles.navText}>Início</Text>
+                <TouchableOpacity
+                    style={styles.navItem}
+                    onPress={() => navigation.navigate('TelaDesperdicio')}
+                >
+                    <Ionicons name="home" size={28} color="#FFFFFF" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.navItem}
+                    onPress={() => navigation.navigate('Pesquisa')}
+                >
+                    <Ionicons name="search" size={28} color="#FFFFFF" />
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.navItem}>
-                    <Ionicons name="stats-chart" size={26} color="#666" />
-                    <Text style={[styles.navText, styles.navTextInactive]}>Estatísticas</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.navItem}>
-                    <Ionicons name="settings" size={26} color="#666" />
-                    <Text style={[styles.navText, styles.navTextInactive]}>Config</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.navItem}>
-                    <Ionicons name="person" size={26} color="#666" />
-                    <Text style={[styles.navText, styles.navTextInactive]}>Perfil</Text>
+                    <Ionicons name="person" size={28} color="#FFFFFF" />
                 </TouchableOpacity>
             </View>
         </View>
@@ -179,211 +217,208 @@ const TelaDesperdicioScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F8F9FA',
+        backgroundColor: '#F5F5F5',
     },
     header: {
-        backgroundColor: '#D32F2F',
-        paddingVertical: 18,
-        paddingHorizontal: 24,
-        paddingTop: 50,
+        paddingHorizontal: 20,
+        paddingTop: 60,
+        paddingBottom: 20,
+        backgroundColor: '#F5F5F5',
+    },
+    profilePill: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
+        backgroundColor: '#D32F2F',
+        borderRadius: 25,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        alignSelf: 'flex-start',
     },
-    title: {
-        fontSize: 26,
-        fontWeight: 'bold',
+    avatar: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: '#FFFFFF',
+        marginRight: 10,
+    },
+    profileName: {
+        fontSize: 11,
         color: '#FFFFFF',
+        fontWeight: '400',
     },
-    profileButton: {
-        padding: 4,
+    profileSubtext: {
+        fontSize: 12,
+        color: '#FFFFFF',
+        fontWeight: '600',
     },
     content: {
         flex: 1,
     },
     scrollContent: {
         paddingHorizontal: 20,
-        paddingVertical: 16,
+        paddingBottom: 120,
     },
-    section: {
-        marginBottom: 28,
+    spacing: {
+        height: 120,
     },
-    sectionHeader: {
+    mainCards: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333333',
-    },
-    sectionSubtitle: {
-        fontSize: 14,
-        color: '#666',
-        fontWeight: '500',
-    },
-    graphCard: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        padding: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.15,
-        shadowRadius: 6,
-        elevation: 5,
-    },
-    graphContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        marginTop: 12,
-    },
-    barContainer: {
-        alignItems: 'center',
-        flex: 1,
-    },
-    barWrapper: {
-        height: 140,
-        justifyContent: 'flex-end',
-        marginBottom: 10,
-        alignItems: 'center',
-    },
-    bar: {
-        width: 24,
-        borderRadius: 6,
-        minHeight: 8,
-    },
-    barValue: {
-        fontSize: 12,
-        color: '#333',
-        marginTop: 4,
-        fontWeight: '600',
-    },
-    barLabel: {
-        fontSize: 13,
-        color: '#666',
-        textAlign: 'center',
-        fontWeight: '500',
-    },
-    graphFooter: {
-        marginTop: 16,
-        paddingTop: 12,
-        borderTopWidth: 1,
-        borderTopColor: '#F0F0F0',
-    },
-    graphFooterText: {
-        fontSize: 14,
-        color: '#666',
-        fontWeight: '500',
-        textAlign: 'center',
-    },
-    noiseLevelContainer: {
-        marginTop: 8,
-    },
-    noiseLevelItem: {
-        marginBottom: 16,
-    },
-    noiseLevelHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    noiseLevelDot: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        marginRight: 8,
-    },
-    noiseLevelTitle: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#333',
-    },
-    noiseLevelBarContainer: {
-        height: 8,
-        backgroundColor: '#F0F0F0',
-        borderRadius: 4,
-        overflow: 'hidden',
-        marginBottom: 4,
-    },
-    noiseLevelBar: {
-        height: '100%',
-        borderRadius: 4,
-    },
-    noiseLevelValue: {
-        fontSize: 12,
-        color: '#666',
-        textAlign: 'right',
-    },
-    legend: {
-        marginTop: 16,
-        padding: 12,
-        backgroundColor: '#F8F9FA',
-        borderRadius: 8,
-    },
-    legendText: {
-        fontSize: 12,
-        color: '#666',
-        textAlign: 'center',
-        fontStyle: 'italic',
-    },
-    tipCard: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        padding: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        gap: 16,
         marginBottom: 20,
     },
-    tipContent: {
+    cardDesperdicio: {
         flex: 1,
-        marginLeft: 12,
+        backgroundColor: '#D32F2F',
+        borderRadius: 20,
+        padding: 20,
+        height: 150,
+        justifyContent: 'space-between',
     },
-    tipTitle: {
+    cardTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+    },
+    barChartIcon: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        gap: 8,
+    },
+    miniBar: {
+        width: 16,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        borderRadius: 4,
+    },
+    cardContra: {
+        flex: 1,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        padding: 16,
+        height: 150,
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+        position: 'relative',
+    },
+    circleDecoration: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: '#FFA726',
+        opacity: 0.3,
+    },
+    badge: {
+        zIndex: 1,
+    },
+    badgeText: {
+        fontSize: 10,
+        color: '#333',
+        fontWeight: '600',
+        textAlign: 'center',
+        marginBottom: 2,
+    },
+    badgeTitle: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 4,
+        color: '#D32F2F',
+        textAlign: 'center',
     },
-    tipText: {
+    badgeSubtitle: {
         fontSize: 14,
-        color: '#666',
-        lineHeight: 20,
+        fontWeight: 'bold',
+        color: '#333',
+        textAlign: 'center',
+    },
+    section: {
+        marginBottom: 20,
+    },
+    sectionLabel: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#D32F2F',
+        marginBottom: 12,
+    },
+    chartCard: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        padding: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    chartContainer: {
+        flexDirection: 'row',
+    },
+    yAxisLabels: {
+        justifyContent: 'space-between',
+        marginRight: 8,
+        height: 120,
+    },
+    axisLabel: {
+        fontSize: 10,
+        color: '#999',
+    },
+    chartArea: {
+        flex: 1,
+    },
+    bottomCards: {
+        flexDirection: 'row',
+        gap: 16,
+        marginBottom: 20,
+    },
+    cardEmoji: {
+        flex: 1,
+        backgroundColor: 'transparent',
+        borderRadius: 20,
+        height: 150,
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+    },
+    solImage: {
+        width: '100%',
+        height: '100%',
+    },
+    cardImage: {
+        flex: 1,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        height: 150,
+        overflow: 'hidden',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cenouraImage: {
+        width: '80%',
+        height: '80%',
     },
     bottomNav: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
         flexDirection: 'row',
-        backgroundColor: '#FFFFFF',
-        paddingVertical: 14,
-        paddingHorizontal: 10,
-        borderTopWidth: 1,
-        borderTopColor: '#E8E8E8',
-        justifyContent: 'space-between',
-        paddingBottom: 20,
+        backgroundColor: '#C62828',
+        paddingVertical: 22,
+        paddingHorizontal: 40,
+        justifyContent: 'space-around',
+        borderTopLeftRadius: 25,
+        borderTopRightRadius: 25,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -3 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 10,
+        height: 80,
     },
     navItem: {
         alignItems: 'center',
-        flex: 1,
-        paddingHorizontal: 8,
-    },
-    navText: {
-        fontSize: 13,
-        color: '#D32F2F',
-        marginTop: 6,
-        fontWeight: '600',
-    },
-    navTextInactive: {
-        color: '#888',
-        fontWeight: '500',
-    },
-    bottomSpacer: {
-        height: 20,
+        justifyContent: 'center',
     },
 });
 
