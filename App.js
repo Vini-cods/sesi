@@ -8,6 +8,7 @@ import TelaDesperdicioScreen from './TelaDesperdicioScreen';
 import TelaPesquisaScreen from './TelaPesquisaScreen';
 import CadastroScreen from './CadastroScreen';
 import LoginScreen from './LoginScreen';
+import DesperdicioDetalhesScreen from './DesperdicioDetalhesScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,6 +38,7 @@ export default function App() {
         <Stack.Screen name="Pesquisa" component={TelaPesquisaScreen} />
         <Stack.Screen name="Cadastro" component={CadastroScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="DesperdicioDetalhes" component={DesperdicioDetalhesScreen} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

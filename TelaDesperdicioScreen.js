@@ -131,16 +131,17 @@ const TelaDesperdicioScreen = ({ navigation }) => {
             >
                 {/* Cards principais */}
                 <View style={styles.mainCards}>
-                    {/* Card Desperdício */}
-                    <View style={styles.cardDesperdicio}>
-                        <Text style={styles.cardTitle}>Desperdício</Text>
-                        <View style={styles.barChartIcon}>
-                            <View style={[styles.miniBar, { height: 30 }]} />
-                            <View style={[styles.miniBar, { height: 50 }]} />
-                            <View style={[styles.miniBar, { height: 40 }]} />
-                            <View style={[styles.miniBar, { height: 60 }]} />
-                        </View>
-                    </View>
+                    {/* Card Desperdício - AGORA É UM BOTÃO COM IMAGEM */}
+                    <TouchableOpacity 
+                        style={styles.cardDesperdicio}
+                        onPress={() => navigation.navigate('DesperdicioDetalhes')} // ou a tela que você quiser
+                    >
+                        <Image
+                            source={require('./img/desperdicio.jpeg')} // substitua pelo caminho da sua imagem
+                            style={styles.graficoBarrasImage}
+                            resizeMode="cover"
+                        />
+                    </TouchableOpacity>
 
                     {/* Card Contra Desperdício */}
                     <View style={styles.cardContra}>
@@ -259,12 +260,13 @@ const styles = StyleSheet.create({
         paddingBottom: 120,
     },
     spacing: {
-        height: 120,
+        height: 10,
     },
     mainCards: {
         flexDirection: 'row',
         gap: 16,
-        marginBottom: 20,
+        marginBottom: 10,
+        marginTop: 60,
     },
     cardDesperdicio: {
         flex: 1,
@@ -273,11 +275,23 @@ const styles = StyleSheet.create({
         padding: 20,
         height: 150,
         justifyContent: 'space-between',
+        overflow: 'hidden',
+        position: 'relative',
+    },
+    graficoBarrasImage: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '130%',
+        height: '150%',
     },
     cardTitle: {
         fontSize: 18,
         fontWeight: 'bold',
         color: '#FFFFFF',
+        zIndex: 1,
     },
     barChartIcon: {
         flexDirection: 'row',
@@ -387,15 +401,15 @@ const styles = StyleSheet.create({
     cardImage: {
         flex: 1,
         backgroundColor: '#FFFFFF',
-        borderRadius: 20,
-        height: 150,
+        borderRadius: 10,
+        height: 140,
         overflow: 'hidden',
         justifyContent: 'center',
         alignItems: 'center',
     },
     cenouraImage: {
-        width: '80%',
-        height: '80%',
+        width: '100%',
+        height: '100%',
     },
     bottomNav: {
         position: 'absolute',
