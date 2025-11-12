@@ -1,278 +1,447 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, StatusBar, TouchableOpacity, ScrollView, Dimensions, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Svg, { Line, Rect, Text as SvgText, G } from 'react-native-svg';
+import Svg, { Circle, G, Text as SvgText, Line, Polyline, Rect } from 'react-native-svg';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 const TelaPesquisaScreen = ({ navigation }) => {
     const [searchText, setSearchText] = useState('');
-    const [selectedYear, setSelectedYear] = useState(2025);
+    const [selectedDate, setSelectedDate] = useState('28/10/2025');
 
-    // Dados de exemplo baseados na imagem - valores em kg
-    const weeklyData = [
-        {
-            day: 'Seg',
-            periods: [
-                { period: 'Café Manhã', kg: 2.5, color: '#FFD700' },
-                { period: 'Almoço', kg: 4.8, color: '#4CAF50' },
-                { period: 'Café Tarde', kg: 1.2, color: '#2196F3' }
+    // Dados completos para cada dia do mês
+    const monthData = {
+        '28/10/2025': {
+            decibelData: [
+                { label: 'Manhã', value: 45, color: '#FFD700' },
+                { label: 'Tarde', value: 65, color: '#4CAF50' },
+                { label: 'Noite', value: 85, color: '#D32F2F' }
             ],
-            total: 8.5
-        },
-        {
-            day: 'Ter',
-            periods: [
-                { period: 'Café Manhã', kg: 3.1, color: '#FFD700' },
-                { period: 'Almoço', kg: 5.2, color: '#4CAF50' },
-                { period: 'Café Tarde', kg: 0.9, color: '#2196F3' }
+            lineChartData: [
+                { time: '08:00', decibels: 40 },
+                { time: '10:00', decibels: 45 },
+                { time: '12:00', decibels: 75 },
+                { time: '14:00', decibels: 65 },
+                { time: '16:00', decibels: 55 },
+                { time: '18:00', decibels: 85 },
+                { time: '20:00', decibels: 70 }
             ],
-            total: 9.2
+            totalKg: 10,
+            note: 'Neste dia, foi observado que os alunos estavam fazendo muito barulho no telefone. O nível de ruído chegou muito alto e automaticamente do acabão, quando o ambiente bastante desconfortável. Devido a isso, um aluno com transtorno do espectro autista (TEA) pareceu ser muito pior. Não conseguia permanecer no local por conta do excesso de barulho.',
+            // Dados de desperdício adicionados
+            wasteData: [
+                { id: 1, name: 'Café de Manhã', value: 1.9, color: '#FFC107' },
+                { id: 2, name: 'Almoço', value: 3.3, color: '#4CAF50' },
+                { id: 3, name: 'Café de Tarde', value: 0.7, color: '#2196F3' },
+            ]
         },
-        {
-            day: 'Qua',
-            periods: [
-                { period: 'Café Manhã', kg: 2.8, color: '#FFD700' },
-                { period: 'Almoço', kg: 6.1, color: '#4CAF50' },
-                { period: 'Café Tarde', kg: 1.5, color: '#2196F3' }
+        '27/10/2025': {
+            decibelData: [
+                { label: 'Manhã', value: 50, color: '#FFD700' },
+                { label: 'Tarde', value: 60, color: '#4CAF50' },
+                { label: 'Noite', value: 65, color: '#D32F2F' }
             ],
-            total: 10.4
-        },
-        {
-            day: 'Qui',
-            periods: [
-                { period: 'Café Manhã', kg: 3.3, color: '#FFD700' },
-                { period: 'Almoço', kg: 4.5, color: '#4CAF50' },
-                { period: 'Café Tarde', kg: 1.1, color: '#2196F3' }
+            lineChartData: [
+                { time: '08:00', decibels: 45 },
+                { time: '10:00', decibels: 50 },
+                { time: '12:00', decibels: 70 },
+                { time: '14:00', decibels: 60 },
+                { time: '16:00', decibels: 55 },
+                { time: '18:00', decibels: 65 },
+                { time: '20:00', decibels: 58 }
             ],
-            total: 8.9
+            totalKg: 7.7,
+            note: 'Dia com ruído moderado. Os alunos estavam mais calmos durante as refeições.',
+            wasteData: [
+                { id: 1, name: 'Café de Manhã', value: 1.5, color: '#FFC107' },
+                { id: 2, name: 'Almoço', value: 2.2, color: '#4CAF50' },
+                { id: 3, name: 'Café de Tarde', value: 1.2, color: '#2196F3' },
+            ]
         },
-        {
-            day: 'Sex',
-            periods: [
-                { period: 'Café Manhã', kg: 2.1, color: '#FFD700' },
-                { period: 'Almoço', kg: 7.3, color: '#4CAF50' },
-                { period: 'Café Tarde', kg: 1.8, color: '#2196F3' }
+        '26/10/2025': {
+            decibelData: [
+                { label: 'Manhã', value: 55, color: '#FFD700' },
+                { label: 'Tarde', value: 70, color: '#4CAF50' },
+                { label: 'Noite', value: 75, color: '#D32F2F' }
             ],
-            total: 11.2
+            lineChartData: [
+                { time: '08:00', decibels: 50 },
+                { time: '10:00', decibels: 55 },
+                { time: '12:00', decibels: 80 },
+                { time: '14:00', decibels: 70 },
+                { time: '16:00', decibels: 65 },
+                { time: '18:00', decibels: 75 },
+                { time: '20:00', decibels: 68 }
+            ],
+            totalKg: 13.3,
+            note: 'Pico no horário do almoço com muito desperdício de comida. Barulho excessivo no refeitório.',
+            wasteData: [
+                { id: 1, name: 'Café de Manhã', value: 2.1, color: '#FFC107' },
+                { id: 2, name: 'Almoço', value: 2.8, color: '#4CAF50' },
+                { id: 3, name: 'Café de Tarde', value: 0.9, color: '#2196F3' },
+            ]
         },
+        '25/10/2025': {
+            decibelData: [
+                { label: 'Manhã', value: 40, color: '#FFD700' },
+                { label: 'Tarde', value: 55, color: '#4CAF50' },
+                { label: 'Noite', value: 60, color: '#D32F2F' }
+            ],
+            lineChartData: [
+                { time: '08:00', decibels: 35 },
+                { time: '10:00', decibels: 40 },
+                { time: '12:00', decibels: 65 },
+                { time: '14:00', decibels: 55 },
+                { time: '16:00', decibels: 50 },
+                { time: '18:00', decibels: 60 },
+                { time: '20:00', decibels: 52 }
+            ],
+            totalKg: 8.2,
+            note: 'Dia tranquilo com baixo nível de ruído e desperdício controlado.',
+            wasteData: [
+                { id: 1, name: 'Café de Manhã', value: 1.2, color: '#FFC107' },
+                { id: 2, name: 'Almoço', value: 3.1, color: '#4CAF50' },
+                { id: 3, name: 'Café de Tarde', value: 1.0, color: '#2196F3' },
+            ]
+        },
+        '24/10/2025': {
+            decibelData: [
+                { label: 'Manhã', value: 60, color: '#FFD700' },
+                { label: 'Tarde', value: 75, color: '#4CAF50' },
+                { label: 'Noite', value: 80, color: '#D32F2F' }
+            ],
+            lineChartData: [
+                { time: '08:00', decibels: 55 },
+                { time: '10:00', decibels: 60 },
+                { time: '12:00', decibels: 85 },
+                { time: '14:00', decibels: 75 },
+                { time: '16:00', decibels: 70 },
+                { time: '18:00', decibels: 80 },
+                { time: '20:00', decibels: 72 }
+            ],
+            totalKg: 11.5,
+            note: 'Muito movimento e barulho durante todo o dia. Alto índice de desperdício.',
+            wasteData: [
+                { id: 1, name: 'Café de Manhã', value: 1.8, color: '#FFC107' },
+                { id: 2, name: 'Almoço', value: 2.5, color: '#4CAF50' },
+                { id: 3, name: 'Café de Tarde', value: 0.8, color: '#2196F3' },
+            ]
+        }
+    };
+
+    // Calendário com dias do mês
+    const monthDays = [
+        { day: 24, kg: 11.5, decibels: 80, date: '24/10/2025' },
+        { day: 25, kg: 8.2, decibels: 60, date: '25/10/2025' },
+        { day: 26, kg: 13.3, decibels: 75, date: '26/10/2025' },
+        { day: 27, kg: 7.7, decibels: 65, date: '27/10/2025' },
+        { day: 28, kg: 10.0, decibels: 85, date: '28/10/2025' },
     ];
 
-    // Dados anuais baseados na imagem
-    const annualData = [
-        { year: 2020, kg: 15.2 },
-        { year: 2021, kg: 12.8 },
-        { year: 2022, kg: 10.5 },
-        { year: 2023, kg: 8.9 },
-        { year: 2024, kg: 7.3 },
-        { year: 2025, kg: 6.2 },
-    ];
+    const currentData = monthData[selectedDate] || monthData['28/10/2025'];
 
-    const renderWeeklyChart = () => {
-        const maxKg = Math.max(...weeklyData.map(item => item.total));
-        const chartHeight = 180;
-        const chartWidth = screenWidth - 60;
-        const barWidth = (chartWidth - 60) / weeklyData.length;
-        const scaleFactor = (chartHeight - 40) / maxKg;
+    // Função para renderizar o gráfico de barras empilhadas (copiada da DesperdicioDetalhesScreen)
+    const renderBarChart = () => {
+        const chartHeight = 200;
+        const chartWidth = screenWidth - 100;
+        const barWidth = 45;
+        const barSpacing = 10;
+        const maxValor = 10;
 
         return (
             <View style={styles.chartContainer}>
                 <View style={styles.yAxisLabels}>
-                    <Text style={styles.axisLabel}>{maxKg}kg</Text>
-                    <Text style={styles.axisLabel}>{Math.round(maxKg * 0.75 * 10) / 10}kg</Text>
-                    <Text style={styles.axisLabel}>{Math.round(maxKg * 0.5 * 10) / 10}kg</Text>
-                    <Text style={styles.axisLabel}>{Math.round(maxKg * 0.25 * 10) / 10}kg</Text>
-                    <Text style={styles.axisLabel}>0kg</Text>
+                    <Text style={styles.axisLabel}>10kg</Text>
+                    <Text style={styles.axisLabel}>8kg</Text>
+                    <Text style={styles.axisLabel}>6kg</Text>
+                    <Text style={styles.axisLabel}>4kg</Text>
+                    <Text style={styles.axisLabel}>2kg</Text>
+                    <Text style={styles.axisLabel}>0</Text>
                 </View>
-                <View style={styles.chartArea}>
-                    <Svg width={chartWidth} height={chartHeight}>
-                        {/* Linhas de grade horizontais */}
-                        {[0, 0.25, 0.5, 0.75, 1].map((ratio, index) => {
-                            const y = chartHeight - 20 - (ratio * (chartHeight - 40));
+                <View style={styles.chartWrapper}>
+                    <Svg width={chartWidth} height={chartHeight + 60}>
+                        {/* Linhas horizontais de referência */}
+                        {[0, 2, 4, 6, 8, 10].map((value, index) => {
+                            const y = chartHeight - (value / maxValor) * chartHeight;
                             return (
                                 <Line
-                                    key={index}
-                                    x1="30"
+                                    key={value}
+                                    x1="0"
                                     y1={y}
                                     x2={chartWidth}
                                     y2={y}
-                                    stroke="#e0e0e0"
+                                    stroke="rgba(0, 0, 0, 0.15)"
                                     strokeWidth="1"
                                 />
                             );
                         })}
 
-                        {/* Eixo Y */}
-                        <Line
-                            x1="30"
-                            y1="20"
-                            x2="30"
-                            y2={chartHeight - 20}
-                            stroke="#666"
-                            strokeWidth="2"
-                        />
+                        {/* Barras do gráfico */}
+                        {currentData.wasteData && currentData.wasteData.length > 0 && (
+                            <React.Fragment>
+                                {(() => {
+                                    const totalDayValue = currentData.wasteData.reduce((sum, meal) => sum + meal.value, 0);
+                                    let currentY = chartHeight;
 
-                        {/* Eixo X */}
-                        <Line
-                            x1="30"
-                            y1={chartHeight - 20}
-                            x2={chartWidth}
-                            y2={chartHeight - 20}
-                            stroke="#666"
-                            strokeWidth="2"
-                        />
-
-                        {/* Barras do gráfico em formato empilhado */}
-                        {weeklyData.map((dayData, index) => {
-                            const x = 35 + (index * barWidth);
-                            let currentY = chartHeight - 20;
-
-                            return (
-                                <G key={index}>
-                                    {/* Renderizar cada período como segmento da barra */}
-                                    {dayData.periods.map((period, periodIndex) => {
-                                        const segmentHeight = period.kg * scaleFactor;
-                                        const y = currentY - segmentHeight;
-
-                                        const segment = (
-                                            <Rect
-                                                key={periodIndex}
-                                                x={x}
-                                                y={y}
-                                                width={barWidth - 6}
-                                                height={segmentHeight}
-                                                fill={period.color}
-                                                rx={2}
-                                            />
-                                        );
-
+                                    return currentData.wasteData.map((meal, mealIndex) => {
+                                        const barHeight = (meal.value / maxValor) * chartHeight;
+                                        const y = currentY - barHeight;
                                         currentY = y;
-                                        return segment;
-                                    })}
 
-                                    {/* Label do dia */}
-                                    <SvgText
-                                        x={x + (barWidth - 6) / 2}
-                                        y={chartHeight - 5}
-                                        textAnchor="middle"
-                                        fill="#666"
-                                        fontSize="11"
-                                        fontWeight="500"
-                                    >
-                                        {dayData.day}
-                                    </SvgText>
+                                        return (
+                                            <React.Fragment key={mealIndex}>
+                                                <Rect
+                                                    x={20}
+                                                    y={y}
+                                                    width={barWidth}
+                                                    height={barHeight}
+                                                    fill={meal.color}
+                                                    rx="5"
+                                                    ry="5"
+                                                />
+                                                {barHeight > 25 && (
+                                                    <SvgText
+                                                        x={20 + barWidth / 2}
+                                                        y={y + barHeight / 2 + 4}
+                                                        textAnchor="middle"
+                                                        fill="#FFFFFF"
+                                                        fontSize="10"
+                                                        fontWeight="bold"
+                                                    >
+                                                        {meal.value}kg
+                                                    </SvgText>
+                                                )}
+                                            </React.Fragment>
+                                        );
+                                    });
+                                })()}
 
-                                    {/* Total no topo da barra */}
-                                    <SvgText
-                                        x={x + (barWidth - 6) / 2}
-                                        y={currentY - 8}
-                                        textAnchor="middle"
-                                        fill="#333"
-                                        fontSize="10"
-                                        fontWeight="bold"
-                                    >
-                                        {dayData.total}kg
-                                    </SvgText>
-                                </G>
-                            );
-                        })}
+                                {/* Label do dia */}
+                                <SvgText
+                                    x={20 + barWidth / 2}
+                                    y={chartHeight + 20}
+                                    textAnchor="middle"
+                                    fill="#333"
+                                    fontSize="11"
+                                    fontWeight="bold"
+                                >
+                                    {selectedDate.split('/')[0]}/{selectedDate.split('/')[1]}
+                                </SvgText>
+                                <SvgText
+                                    x={20 + barWidth / 2}
+                                    y={chartHeight + 38}
+                                    textAnchor="middle"
+                                    fill="rgba(0, 0, 0, 0.8)"
+                                    fontSize="10"
+                                >
+                                    Total: {currentData.totalKg}kg
+                                </SvgText>
+                            </React.Fragment>
+                        )}
                     </Svg>
                 </View>
             </View>
         );
     };
 
-    const renderAnnualChart = () => {
-        const maxKg = Math.max(...annualData.map(item => item.kg));
-        const chartHeight = 180;
-        const chartWidth = screenWidth - 60;
-        const barWidth = (chartWidth - 60) / annualData.length;
-        const scaleFactor = (chartHeight - 40) / maxKg;
+    // Função para obter tipos únicos de refeição
+    const getUniqueMealTypes = () => {
+        const mealNames = [];
+        const uniqueMeals = [];
+
+        Object.values(monthData).forEach(day => {
+            if (day.wasteData) {
+                day.wasteData.forEach(meal => {
+                    if (!mealNames.includes(meal.name)) {
+                        mealNames.push(meal.name);
+                        uniqueMeals.push(meal);
+                    }
+                });
+            }
+        });
+
+        return uniqueMeals;
+    };
+
+    const uniqueMealTypes = getUniqueMealTypes();
+
+    const renderDonutChart = () => {
+        // ... (código existente do donut chart)
+        const size = 180;
+        const strokeWidth = 20;
+        const radius = (size - strokeWidth) / 2;
+        const circumference = 2 * Math.PI * radius;
+
+        const total = currentData.decibelData.reduce((sum, item) => sum + item.value, 0);
+        let accumulatedPercent = 0;
+
+        return (
+            <View style={styles.donutContainer}>
+                <Svg width={size} height={size}>
+                    <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
+                        {currentData.decibelData.map((item, index) => {
+                            const percent = item.value / total;
+                            const strokeDasharray = `${circumference * percent} ${circumference * (1 - percent)}`;
+                            const strokeDashoffset = circumference * accumulatedPercent;
+
+                            accumulatedPercent += percent;
+
+                            return (
+                                <Circle
+                                    key={index}
+                                    cx={size / 2}
+                                    cy={size / 2}
+                                    r={radius}
+                                    stroke={item.color}
+                                    strokeWidth={strokeWidth}
+                                    strokeDasharray={strokeDasharray}
+                                    strokeDashoffset={strokeDashoffset}
+                                    fill="transparent"
+                                    strokeLinecap="round"
+                                />
+                            );
+                        })}
+                    </G>
+
+                    {/* Texto central */}
+                    <SvgText
+                        x={size / 2}
+                        y={size / 2 - 10}
+                        textAnchor="middle"
+                        fill="#D32F2F"
+                        fontSize="16"
+                        fontWeight="bold"
+                    >
+                        {Math.max(...currentData.decibelData.map(item => item.value))}dB
+                    </SvgText>
+                    <SvgText
+                        x={size / 2}
+                        y={size / 2 + 15}
+                        textAnchor="middle"
+                        fill="#666"
+                        fontSize="12"
+                    >
+                        Pico
+                    </SvgText>
+                </Svg>
+
+                {/* Legenda */}
+                <View style={styles.legendContainer}>
+                    {currentData.decibelData.map((item, index) => (
+                        <View key={index} style={styles.legendItem}>
+                            <View style={[styles.legendColor, { backgroundColor: item.color }]} />
+                            <Text style={styles.legendText}>
+                                {item.label}: {item.value}dB
+                            </Text>
+                        </View>
+                    ))}
+                </View>
+            </View>
+        );
+    };
+
+    const renderLineChart = () => {
+        // ... (código existente do line chart)
+        const maxY = 100;
+        const chartHeight = 120;
+        const chartWidth = screenWidth - 100;
+
+        const points = currentData.lineChartData.map((point, index) => {
+            const x = (index / (currentData.lineChartData.length - 1)) * chartWidth;
+            const y = chartHeight - (point.decibels / maxY) * chartHeight;
+            return `${x},${y}`;
+        }).join(' ');
+
+        const peakIndex = currentData.lineChartData.reduce((maxIndex, point, index, array) =>
+            point.decibels > array[maxIndex].decibels ? index : maxIndex, 0
+        );
+        const peakX = (peakIndex / (currentData.lineChartData.length - 1)) * chartWidth;
+        const peakY = chartHeight - (currentData.lineChartData[peakIndex].decibels / maxY) * chartHeight;
 
         return (
             <View style={styles.chartContainer}>
                 <View style={styles.yAxisLabels}>
-                    <Text style={styles.axisLabel}>{maxKg}kg</Text>
-                    <Text style={styles.axisLabel}>{Math.round(maxKg * 0.75 * 10) / 10}kg</Text>
-                    <Text style={styles.axisLabel}>{Math.round(maxKg * 0.5 * 10) / 10}kg</Text>
-                    <Text style={styles.axisLabel}>{Math.round(maxKg * 0.25 * 10) / 10}kg</Text>
-                    <Text style={styles.axisLabel}>0kg</Text>
+                    <Text style={styles.axisLabel}>100</Text>
+                    <Text style={styles.axisLabel}>75</Text>
+                    <Text style={styles.axisLabel}>50</Text>
+                    <Text style={styles.axisLabel}>25</Text>
+                    <Text style={styles.axisLabel}>0</Text>
                 </View>
                 <View style={styles.chartArea}>
                     <Svg width={chartWidth} height={chartHeight}>
-                        {/* Linhas de grade horizontais */}
-                        {[0, 0.25, 0.5, 0.75, 1].map((ratio, index) => {
-                            const y = chartHeight - 20 - (ratio * (chartHeight - 40));
+                        {[0, 25, 50, 75, 100].map((value) => {
+                            const y = chartHeight - (value / maxY) * chartHeight;
                             return (
                                 <Line
-                                    key={index}
-                                    x1="30"
+                                    key={value}
+                                    x1="0"
                                     y1={y}
                                     x2={chartWidth}
                                     y2={y}
-                                    stroke="#e0e0e0"
+                                    stroke="#f0f0f0"
                                     strokeWidth="1"
+                                    strokeDasharray="4,4"
                                 />
                             );
                         })}
 
-                        {/* Eixo Y */}
-                        <Line
-                            x1="30"
-                            y1="20"
-                            x2="30"
-                            y2={chartHeight - 20}
-                            stroke="#666"
-                            strokeWidth="2"
+                        <Polyline
+                            points={points}
+                            fill="none"
+                            stroke="#E57373"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         />
 
-                        {/* Eixo X */}
-                        <Line
-                            x1="30"
-                            y1={chartHeight - 20}
-                            x2={chartWidth}
-                            y2={chartHeight - 20}
-                            stroke="#666"
-                            strokeWidth="2"
+                        <Circle
+                            cx={peakX}
+                            cy={peakY}
+                            r="6"
+                            fill="#D32F2F"
+                        />
+                        <Circle
+                            cx={peakX}
+                            cy={peakY}
+                            r="3"
+                            fill="white"
                         />
 
-                        {/* Barras do gráfico anual */}
-                        {annualData.map((item, index) => {
-                            const barHeight = item.kg * scaleFactor;
-                            const x = 35 + (index * barWidth);
-                            const y = chartHeight - 20 - barHeight;
+                        <SvgText
+                            x={peakX}
+                            y={peakY - 15}
+                            textAnchor="middle"
+                            fill="#D32F2F"
+                            fontSize="12"
+                            fontWeight="bold"
+                        >
+                            {currentData.lineChartData[peakIndex].decibels}dB
+                        </SvgText>
 
+                        <Line
+                            x1={peakX}
+                            y1={peakY}
+                            x2={peakX}
+                            y2={chartHeight}
+                            stroke="#D32F2F"
+                            strokeWidth="1"
+                            strokeDasharray="4,4"
+                        />
+
+                        {/* Labels do eixo X */}
+                        {currentData.lineChartData.map((point, index) => {
+                            const x = (index / (currentData.lineChartData.length - 1)) * chartWidth;
                             return (
-                                <G key={index}>
-                                    <Rect
-                                        x={x}
-                                        y={y}
-                                        width={barWidth - 6}
-                                        height={barHeight}
-                                        fill={item.year === selectedYear ? '#D32F2F' : '#FFA726'}
-                                        rx={3}
-                                    />
-                                    <SvgText
-                                        x={x + (barWidth - 6) / 2}
-                                        y={chartHeight - 5}
-                                        textAnchor="middle"
-                                        fill="#666"
-                                        fontSize="11"
-                                        fontWeight="500"
-                                    >
-                                        {item.year}
-                                    </SvgText>
-                                    <SvgText
-                                        x={x + (barWidth - 6) / 2}
-                                        y={y - 8}
-                                        textAnchor="middle"
-                                        fill={item.year === selectedYear ? '#D32F2F' : '#FFA726'}
-                                        fontSize="10"
-                                        fontWeight="bold"
-                                    >
-                                        {item.kg}kg
-                                    </SvgText>
-                                </G>
+                                <SvgText
+                                    key={index}
+                                    x={x}
+                                    y={chartHeight + 15}
+                                    textAnchor="middle"
+                                    fill="#666"
+                                    fontSize="10"
+                                >
+                                    {point.time}
+                                </SvgText>
                             );
                         })}
                     </Svg>
@@ -282,57 +451,58 @@ const TelaPesquisaScreen = ({ navigation }) => {
     };
 
     const renderCalendar = () => {
-        const days = [ 'Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
+        // ... (código existente do calendário)
         const currentDate = new Date();
         const currentDay = currentDate.getDate();
         const currentMonth = currentDate.getMonth();
         const currentYear = currentDate.getFullYear();
 
-        // Obter primeiro dia do mês
-        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-        // Obter número de dias no mês
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
         const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
             'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+        const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
         return (
             <View style={styles.calendarContainer}>
                 <Text style={styles.calendarTitle}>
                     {monthNames[currentMonth]} {currentYear}
                 </Text>
-                <View style={styles.calendarDays}>
-                    {days.map((day, index) => (
+
+                <View style={styles.calendarDaysHeader}>
+                    {daysOfWeek.map((day, index) => (
                         <Text key={index} style={styles.calendarDayHeader}>
                             {day}
                         </Text>
                     ))}
                 </View>
-                <View style={styles.calendarGrid}>
-                    {/* Dias vazios no início */}
-                    {Array.from({ length: firstDay }, (_, index) => (
-                        <View key={`empty-${index}`} style={styles.calendarDay} />
-                    ))}
 
-                    {/* Dias do mês */}
-                    {Array.from({ length: daysInMonth }, (_, index) => {
-                        const day = index + 1;
-                        const isCurrentDay = day === currentDay;
+                <View style={styles.calendarGrid}>
+                    {monthDays.map((dayData) => {
+                        const isSelected = dayData.date === selectedDate;
+                        const isToday = dayData.day === currentDay;
+
                         return (
-                            <View
-                                key={day}
+                            <TouchableOpacity
+                                key={dayData.day}
                                 style={[
                                     styles.calendarDay,
-                                    isCurrentDay && styles.calendarCurrentDay
+                                    isSelected && styles.calendarSelectedDay,
+                                    isToday && styles.calendarToday
                                 ]}
+                                onPress={() => setSelectedDate(dayData.date)}
                             >
                                 <Text style={[
                                     styles.calendarDayText,
-                                    isCurrentDay && styles.calendarCurrentDayText
+                                    isSelected && styles.calendarSelectedDayText,
+                                    isToday && styles.calendarTodayText
                                 ]}>
-                                    {day}
+                                    {dayData.day}
                                 </Text>
-                            </View>
+                                <View style={styles.calendarDayInfo}>
+                                    <Text style={styles.calendarDayKg}>{dayData.kg}kg</Text>
+                                    <Text style={styles.calendarDayDb}>{dayData.decibels}dB</Text>
+                                </View>
+                            </TouchableOpacity>
                         );
                     })}
                 </View>
@@ -340,22 +510,30 @@ const TelaPesquisaScreen = ({ navigation }) => {
         );
     };
 
-    // Legenda dos horários
-    const renderLegend = () => {
-        const periods = [
-            { label: 'Café da Manhã', color: '#FFD700' },
-            { label: 'Almoço', color: '#4CAF50' },
-            { label: 'Café da Tarde', color: '#2196F3' }
-        ];
-
+    const renderDailyInfo = () => {
+        // ... (código existente das informações diárias)
         return (
-            <View style={styles.legendContainer}>
-                {periods.map((period, index) => (
-                    <View key={index} style={styles.legendItem}>
-                        <View style={[styles.legendColor, { backgroundColor: period.color }]} />
-                        <Text style={styles.legendText}>{period.label}</Text>
+            <View style={styles.dailyInfoContainer}>
+                <Text style={styles.dailyInfoTitle}>Informações do Dia - {selectedDate}</Text>
+                <View style={styles.dailyInfoCard}>
+                    <View style={styles.dailyInfoRow}>
+                        <Text style={styles.dailyInfoLabel}>Data:</Text>
+                        <Text style={styles.dailyInfoValue}>{selectedDate}</Text>
                     </View>
-                ))}
+                    <View style={styles.dailyInfoRow}>
+                        <Text style={styles.dailyInfoLabel}>Desperdício Total:</Text>
+                        <Text style={styles.dailyInfoValue}>{currentData.totalKg}kg</Text>
+                    </View>
+                    <View style={styles.dailyInfoRow}>
+                        <Text style={styles.dailyInfoLabel}>Decibéis Máximos:</Text>
+                        <Text style={styles.dailyInfoValue}>
+                            {Math.max(...currentData.decibelData.map(item => item.value))}dB
+                        </Text>
+                    </View>
+                    <View style={styles.dailyInfoNote}>
+                        <Text style={styles.dailyInfoNoteText}>{currentData.note}</Text>
+                    </View>
+                </View>
             </View>
         );
     };
@@ -364,7 +542,7 @@ const TelaPesquisaScreen = ({ navigation }) => {
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#F5F5F5" />
 
-            {/* Header */}
+            {/* Header com perfil - IDÊNTICO AO TelaDesperdicio */}
             <View style={styles.header}>
                 <View style={styles.profilePill}>
                     <View style={styles.avatar} />
@@ -394,52 +572,76 @@ const TelaPesquisaScreen = ({ navigation }) => {
 
                 {/* Calendário */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionLabel}>Calendário</Text>
+                    <Text style={styles.sectionLabel}>Calendário Outubro 2025</Text>
                     {renderCalendar()}
                 </View>
 
-                {/* Gráfico Semanal */}
+                {/* Gráfico de Barras - Desperdício por Refeição */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionLabel}>Desperdício Semanal por Horário</Text>
+                    <Text style={styles.sectionLabel}>Desperdício por Refeição</Text>
                     <View style={styles.chartCard}>
-                        {renderWeeklyChart()}
-                        {renderLegend()}
+                        {/* Legenda compacta */}
+                        <View style={styles.compactLegend}>
+                            {uniqueMealTypes.map((meal, index) => (
+                                <View key={index} style={styles.compactLegendItem}>
+                                    <View style={[styles.legendDot, { backgroundColor: meal.color }]} />
+                                    <Text style={styles.compactLegendText}>{meal.name}</Text>
+                                </View>
+                            ))}
+                        </View>
+
+                        {/* Gráfico de barras */}
+                        {renderBarChart()}
                     </View>
                 </View>
 
-                {/* Gráfico Anual */}
+                {/* Gráfico de Linha - Decibéis ao Longo do Dia */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionLabel}>Comparativo Anual</Text>
+                    <Text style={styles.sectionLabel}>Decibéis ao Longo do Dia</Text>
                     <View style={styles.chartCard}>
-                        {renderAnnualChart()}
+                        {renderLineChart()}
                     </View>
                 </View>
 
-                {/* Estatísticas Rápidas */}
+                {/* Gráfico de Rosca - Distribuição de Decibéis */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionLabel}>Distribuição de Decibéis por Período</Text>
+                    <View style={styles.chartCard}>
+                        {renderDonutChart()}
+                    </View>
+                </View>
+
+                {/* Informações do Dia Selecionado */}
+                {renderDailyInfo()}
+
+                {/* Cards de Estatísticas */}
                 <View style={styles.statsContainer}>
                     <View style={styles.statCard}>
+                        <Ionicons name="volume-high" size={24} color="#D32F2F" />
                         <Text style={styles.statValue}>
-                            {weeklyData.reduce((sum, day) => sum + day.total, 0).toFixed(1)}kg
+                            {Math.max(...currentData.decibelData.map(item => item.value))}dB
                         </Text>
-                        <Text style={styles.statLabel}>Total Semanal</Text>
+                        <Text style={styles.statLabel}>Pico do Dia</Text>
                     </View>
                     <View style={styles.statCard}>
-                        <Text style={styles.statValue}>
-                            {(weeklyData.reduce((sum, day) => sum + day.total, 0) / weeklyData.length).toFixed(1)}kg
-                        </Text>
-                        <Text style={styles.statLabel}>Média Diária</Text>
+                        <Ionicons name="restaurant" size={24} color="#4CAF50" />
+                        <Text style={styles.statValue}>{currentData.totalKg}kg</Text>
+                        <Text style={styles.statLabel}>Desperdício</Text>
                     </View>
                     <View style={styles.statCard}>
+                        <Ionicons name="time" size={24} color="#FFA726" />
                         <Text style={styles.statValue}>
-                            {Math.max(...weeklyData.map(day => day.total)).toFixed(1)}kg
+                            {currentData.lineChartData.reduce((max, point, index, array) =>
+                                point.decibels > array[max].decibels ? index : max, 0
+                            )}
                         </Text>
-                        <Text style={styles.statLabel}>Pico Semanal</Text>
+                        <Text style={styles.statLabel}>Horário Crítico</Text>
                     </View>
                 </View>
 
             </ScrollView>
 
-            {/* Barra inferior de navegação FUNCIONAL */}
+            {/* Barra inferior de navegação - IDÊNTICA AO TelaDesperdicio */}
             <View style={styles.bottomNav}>
                 <TouchableOpacity
                     style={styles.navItem}
@@ -466,8 +668,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#F5F5F5',
     },
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
         paddingHorizontal: 20,
         paddingTop: 60,
         paddingBottom: 20,
@@ -480,7 +680,7 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         paddingVertical: 8,
         paddingHorizontal: 12,
-        flex: 1,
+        alignSelf: 'flex-start',
     },
     avatar: {
         width: 36,
@@ -529,13 +729,13 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     section: {
-        marginBottom: 25,
+        marginBottom: 20,
     },
     sectionLabel: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 16,
+        fontWeight: '600',
         color: '#D32F2F',
-        marginBottom: 15,
+        marginBottom: 12,
     },
     chartCard: {
         backgroundColor: '#FFFFFF',
@@ -547,47 +747,53 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 3,
     },
+    // Estilos para o gráfico de barras (copiados da DesperdicioDetalhesScreen)
     chartContainer: {
         flexDirection: 'row',
+    },
+    chartWrapper: {
+        flex: 1,
     },
     yAxisLabels: {
         justifyContent: 'space-between',
         marginRight: 8,
-        height: 180,
-        paddingVertical: 10,
+        height: 200,
+        paddingVertical: 5,
     },
     axisLabel: {
-        fontSize: 10,
+        fontSize: 11,
         color: '#666',
-        fontWeight: '500',
+        fontWeight: '600',
     },
-    chartArea: {
-        flex: 1,
+    // Legenda compacta
+    compactLegend: {
+        flexDirection: 'column',
+        marginBottom: 20,
+        backgroundColor: '#f8f8f8',
+        borderRadius: 15,
+        padding: 15,
     },
-    // Legenda
-    legendContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginTop: 20,
-        paddingTop: 15,
-        borderTopWidth: 1,
-        borderTopColor: '#f0f0f0',
-    },
-    legendItem: {
+    compactLegendItem: {
         flexDirection: 'row',
         alignItems: 'center',
+        paddingVertical: 6,
     },
-    legendColor: {
+    legendDot: {
         width: 14,
         height: 14,
         borderRadius: 7,
-        marginRight: 6,
+        marginRight: 10,
     },
-    legendText: {
-        fontSize: 11,
-        color: '#666',
+    compactLegendText: {
+        fontSize: 13,
+        color: '#333',
         fontWeight: '500',
     },
+    // Gráfico de Linha
+    chartArea: {
+        flex: 1,
+    },
+    // Calendário
     calendarContainer: {
         backgroundColor: '#FFFFFF',
         borderRadius: 20,
@@ -605,7 +811,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 15,
     },
-    calendarDays: {
+    calendarDaysHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginBottom: 10,
@@ -627,20 +833,120 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginVertical: 2,
+        borderRadius: 8,
+        padding: 2,
     },
-    calendarCurrentDay: {
+    calendarSelectedDay: {
         backgroundColor: '#D32F2F',
-        borderRadius: 20,
+    },
+    calendarToday: {
+        borderWidth: 2,
+        borderColor: '#FFA726',
     },
     calendarDayText: {
         fontSize: 12,
         color: '#333',
         fontWeight: '500',
     },
-    calendarCurrentDayText: {
+    calendarSelectedDayText: {
         color: '#FFFFFF',
         fontWeight: 'bold',
     },
+    calendarTodayText: {
+        color: '#FFA726',
+        fontWeight: 'bold',
+    },
+    calendarDayInfo: {
+        alignItems: 'center',
+        marginTop: 2,
+    },
+    calendarDayKg: {
+        fontSize: 8,
+        color: '#4CAF50',
+        fontWeight: 'bold',
+    },
+    calendarDayDb: {
+        fontSize: 8,
+        color: '#D32F2F',
+        fontWeight: 'bold',
+    },
+    // Gráfico de Rosca
+    donutContainer: {
+        alignItems: 'center',
+    },
+    legendContainer: {
+        marginTop: 20,
+        width: '100%',
+    },
+    legendItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+        justifyContent: 'center',
+    },
+    legendColor: {
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        marginRight: 8,
+    },
+    legendText: {
+        fontSize: 12,
+        color: '#666',
+        fontWeight: '500',
+    },
+    // Informações do Dia
+    dailyInfoContainer: {
+        marginBottom: 20,
+    },
+    dailyInfoTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#D32F2F',
+        marginBottom: 12,
+    },
+    dailyInfoCard: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        padding: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    dailyInfoRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+        paddingBottom: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
+    },
+    dailyInfoLabel: {
+        fontSize: 14,
+        color: '#666',
+        fontWeight: '500',
+    },
+    dailyInfoValue: {
+        fontSize: 14,
+        color: '#333',
+        fontWeight: 'bold',
+    },
+    dailyInfoNote: {
+        marginTop: 10,
+        padding: 12,
+        backgroundColor: '#FFF3E0',
+        borderRadius: 10,
+    },
+    dailyInfoNoteText: {
+        fontSize: 12,
+        color: '#E65100',
+        fontStyle: 'italic',
+        textAlign: 'center',
+    },
+    // Estatísticas
     statsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -663,7 +969,8 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         color: '#D32F2F',
-        marginBottom: 5,
+        marginTop: 8,
+        marginBottom: 4,
     },
     statLabel: {
         fontSize: 11,
@@ -671,6 +978,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontWeight: '500',
     },
+    // Navegação inferior
     bottomNav: {
         position: 'absolute',
         bottom: 0,

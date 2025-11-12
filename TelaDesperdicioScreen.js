@@ -1,113 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, StatusBar, TouchableOpacity, ScrollView, Dimensions, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Svg, { Line, Polyline, Circle, Text as SvgText } from 'react-native-svg';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-const TelaDesperdicioScreen = ({ navigation }) => {
-    const dadosDecibeis = [
-        { x: 0, y: 50 },
-        { x: 1, y: 45 },
-        { x: 2, y: 55 },
-        { x: 3, y: 75 },
-        { x: 4, y: 60 },
-        { x: 5, y: 70 },
-        { x: 6, y: 55 },
-        { x: 7, y: 65 },
-        { x: 8, y: 85 },
-        { x: 9, y: 60 },
-        { x: 10, y: 70 },
-    ];
+const TelaDesperdicioScreen = ({ navigation, route }) => {
+    // Estado para armazenar a figurinha selecionada
+    const [figurinhaSelecionada, setFigurinhaSelecionada] = useState(require('./img/sol.png'));
 
-    const renderLineChart = () => {
-        const maxY = 100;
-        const chartHeight = 120;
-        const chartWidth = screenWidth - 100;
-
-        const points = dadosDecibeis.map((point, index) => {
-            const x = (index / (dadosDecibeis.length - 1)) * chartWidth;
-            const y = chartHeight - (point.y / maxY) * chartHeight;
-            return `${x},${y}`;
-        }).join(' ');
-
-        const peakX = (8 / (dadosDecibeis.length - 1)) * chartWidth;
-        const peakY = chartHeight - (85 / maxY) * chartHeight;
-
-        return (
-            <View style={styles.chartContainer}>
-                <View style={styles.yAxisLabels}>
-                    <Text style={styles.axisLabel}>100</Text>
-                    <Text style={styles.axisLabel}>75</Text>
-                    <Text style={styles.axisLabel}>50</Text>
-                    <Text style={styles.axisLabel}>25</Text>
-                    <Text style={styles.axisLabel}>0</Text>
-                </View>
-                <View style={styles.chartArea}>
-                    <Svg width={chartWidth} height={chartHeight}>
-                        {[0, 25, 50, 75, 100].map((value) => {
-                            const y = chartHeight - (value / maxY) * chartHeight;
-                            return (
-                                <Line
-                                    key={value}
-                                    x1="0"
-                                    y1={y}
-                                    x2={chartWidth}
-                                    y2={y}
-                                    stroke="#f0f0f0"
-                                    strokeWidth="1"
-                                    strokeDasharray="4,4"
-                                />
-                            );
-                        })}
-
-                        <Polyline
-                            points={points}
-                            fill="none"
-                            stroke="#E57373"
-                            strokeWidth="3"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-
-                        <Circle
-                            cx={peakX}
-                            cy={peakY}
-                            r="6"
-                            fill="#D32F2F"
-                        />
-                        <Circle
-                            cx={peakX}
-                            cy={peakY}
-                            r="3"
-                            fill="white"
-                        />
-
-                        <SvgText
-                            x={peakX}
-                            y={peakY - 15}
-                            textAnchor="middle"
-                            fill="#D32F2F"
-                            fontSize="12"
-                            fontWeight="bold"
-                        >
-                            85dB
-                        </SvgText>
-
-                        <Line
-                            x1={peakX}
-                            y1={peakY}
-                            x2={peakX}
-                            y2={chartHeight}
-                            stroke="#D32F2F"
-                            strokeWidth="1"
-                            strokeDasharray="4,4"
-                        />
-                    </Svg>
-                </View>
-            </View>
-        );
-    };
+    // Atualiza a figurinha quando retorna da tela de seleção
+    useEffect(() => {
+        if (route.params?.figurinhaSelecionada) {
+            setFigurinhaSelecionada(route.params.figurinhaSelecionada.source);
+        }
+    }, [route.params?.figurinhaSelecionada]);
 
     return (
         <View style={styles.container}>
@@ -132,12 +38,12 @@ const TelaDesperdicioScreen = ({ navigation }) => {
                 {/* Cards principais */}
                 <View style={styles.mainCards}>
                     {/* Card Desperdício - AGORA É UM BOTÃO COM IMAGEM */}
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.cardDesperdicio}
-                        onPress={() => navigation.navigate('DesperdicioDetalhes')} // ou a tela que você quiser
+                        onPress={() => navigation.navigate('DesperdicioDetalhes')}
                     >
                         <Image
-                            source={require('./img/desperdicio.jpeg')} // substitua pelo caminho da sua imagem
+                            source={require('./img/desperdicio.jpeg')}
                             style={styles.graficoBarrasImage}
                             resizeMode="cover"
                         />
@@ -154,12 +60,19 @@ const TelaDesperdicioScreen = ({ navigation }) => {
                     </View>
                 </View>
 
-                {/* Gráfico de Decibéis */}
+                {/* Gráfico de Decibéis - AGORA É UMA IMAGEM E UM BOTÃO QUE NAVEGA PARA DETALHES */}
                 <View style={styles.section}>
                     <Text style={styles.sectionLabel}>Decibéis</Text>
-                    <View style={styles.chartCard}>
-                        {renderLineChart()}
-                    </View>
+                    <TouchableOpacity
+                        style={styles.chartCard}
+                        onPress={() => navigation.navigate('TelaDecibeisDetalhes')}
+                    >
+                        <Image
+                            source={require('./img/decibeis.jpeg')}
+                            style={styles.graficoDecibeisImage}
+                            resizeMode="contain"
+                        />
+                    </TouchableOpacity>
                 </View>
 
                 {/* Espaçamento adicional para descer os elementos */}
@@ -167,14 +80,17 @@ const TelaDesperdicioScreen = ({ navigation }) => {
 
                 {/* Cards inferiores */}
                 <View style={styles.bottomCards}>
-                    {/* Card Emoji - Substituído por imagem do sol */}
-                    <View style={styles.cardEmoji}>
+                    {/* Card Emoji - AGORA É UM BOTÃO QUE NAVEGA PARA TELA DO SOL */}
+                    <TouchableOpacity
+                        style={styles.cardEmoji}
+                        onPress={() => navigation.navigate('TelaSol')}
+                    >
                         <Image
-                            source={require('./img/sol.png')}
+                            source={figurinhaSelecionada}
                             style={styles.solImage}
                             resizeMode="contain"
                         />
-                    </View>
+                    </TouchableOpacity>
 
                     {/* Card Imagem - AGORA É UM BOTÃO */}
                     <TouchableOpacity
@@ -364,21 +280,12 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.08,
         shadowRadius: 8,
         elevation: 3,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
-    chartContainer: {
-        flexDirection: 'row',
-    },
-    yAxisLabels: {
-        justifyContent: 'space-between',
-        marginRight: 8,
-        height: 120,
-    },
-    axisLabel: {
-        fontSize: 10,
-        color: '#999',
-    },
-    chartArea: {
-        flex: 1,
+    graficoDecibeisImage: {
+        width: '100%',
+        height: 150,
     },
     bottomCards: {
         flexDirection: 'row',
