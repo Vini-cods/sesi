@@ -11,6 +11,7 @@ import LoginScreen from './LoginScreen';
 import DesperdicioDetalhesScreen from './DesperdicioDetalhesScreen';
 import TelaSolScreen from './TelaSolScreen';
 import TelaDecibeisDetalhes from './TelaDecibeisDetalhes';
+import { DataProvider } from './DataContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,21 +31,23 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Inicio"
-        screenOptions={{ headerShown: false }}
-      >
-        <Stack.Screen name="Inicio" component={InicioScreen} />
-        <Stack.Screen name="TelaDesperdicio" component={TelaDesperdicioScreen} />
-        <Stack.Screen name="Pesquisa" component={TelaPesquisaScreen} />
-        <Stack.Screen name="Cadastro" component={CadastroScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="DesperdicioDetalhes" component={DesperdicioDetalhesScreen} />
-        <Stack.Screen name="TelaSol" component={TelaSolScreen} />
-        <Stack.Screen name="TelaDecibeisDetalhes" component={TelaDecibeisDetalhes} />
-      </Stack.Navigator>
-      <StatusBar style="auto" />
-    </NavigationContainer>
+    <DataProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Inicio"
+          screenOptions={{ headerShown: false }}
+        >
+          <Stack.Screen name="Inicio" component={InicioScreen} />
+          <Stack.Screen name="TelaDesperdicio" component={TelaDesperdicioScreen} />
+          <Stack.Screen name="Pesquisa" component={TelaPesquisaScreen} />
+          <Stack.Screen name="Cadastro" component={CadastroScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="DesperdicioDetalhes" component={DesperdicioDetalhesScreen} />
+          <Stack.Screen name="TelaSol" component={TelaSolScreen} />
+          <Stack.Screen name="TelaDecibeisDetalhes" component={TelaDecibeisDetalhes} />
+        </Stack.Navigator>
+        <StatusBar style="auto" />
+      </NavigationContainer>
+    </DataProvider>
   );
 }

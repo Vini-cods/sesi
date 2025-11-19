@@ -1,13 +1,18 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { View, Text, StyleSheet, StatusBar, ScrollView, TouchableOpacity, Dimensions, Modal, TextInput, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Line, Rect, Text as SvgText } from 'react-native-svg';
+import { useData } from './DataContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const DesperdicioDetalhesScreen = ({ navigation }) => {
     const [editModalVisible, setEditModalVisible] = useState(false);
     const [editingData, setEditingData] = useState({ dayIndex: null, meal: null });
+    const [selectedDayIndex, setSelectedDayIndex] = useState(0); // Dia selecionado para detalhes
+
+    // Use o contexto em vez do estado local
+    const { dadosSemana, atualizarRefeicoesDia } = useData();
 
     // Animação para o header
     const scrollY = useRef(new Animated.Value(0)).current;
@@ -17,59 +22,13 @@ const DesperdicioDetalhesScreen = ({ navigation }) => {
         extrapolate: 'clamp',
     });
 
-    // Dados iniciais para cada dia da semana
-    const [dadosSemana, setDadosSemana] = useState([
-        {
-            dia: 'Seg',
-            date: '24/10',
-            meals: [
-                { id: 1, name: 'Café de Manhã', value: 1.8, color: '#FFC107' },
-                { id: 2, name: 'Almoço', value: 2.5, color: '#4CAF50' },
-                { id: 3, name: 'Café de Tarde', value: 0.8, color: '#2196F3' },
-            ]
-        },
-        {
-            dia: 'Ter',
-            date: '25/10',
-            meals: [
-                { id: 1, name: 'Café de Manhã', value: 1.2, color: '#FFC107' },
-                { id: 2, name: 'Almoço', value: 3.1, color: '#4CAF50' },
-                { id: 3, name: 'Café de Tarde', value: 1.0, color: '#2196F3' },
-            ]
-        },
-        {
-            dia: 'Qua',
-            date: '26/10',
-            meals: [
-                { id: 1, name: 'Café de Manhã', value: 2.1, color: '#FFC107' },
-                { id: 2, name: 'Almoço', value: 2.8, color: '#4CAF50' },
-                { id: 3, name: 'Café de Tarde', value: 0.9, color: '#2196F3' },
-            ]
-        },
-        {
-            dia: 'Qui',
-            date: '27/10',
-            meals: [
-                { id: 1, name: 'Café de Manhã', value: 1.5, color: '#FFC107' },
-                { id: 2, name: 'Almoço', value: 2.2, color: '#4CAF50' },
-                { id: 3, name: 'Café de Tarde', value: 1.2, color: '#2196F3' },
-            ]
-        },
-        {
-            dia: 'Sex',
-            date: '28/10',
-            meals: [
-                { id: 1, name: 'Café de Manhã', value: 1.9, color: '#FFC107' },
-                { id: 2, name: 'Almoço', value: 3.3, color: '#4CAF50' },
-                { id: 3, name: 'Café de Tarde', value: 0.7, color: '#2196F3' },
-            ]
-        },
-    ]);
-
     const maxValor = 10;
     const totalMensal = dadosSemana.reduce((acc, day) =>
         acc + day.meals.reduce((sum, meal) => sum + meal.value, 0), 0
     );
+
+    const selectedDay = dadosSemana[selectedDayIndex];
+    const totalSelectedDay = selectedDay.meals.reduce((sum, meal) => sum + meal.value, 0);
 
     const handleEditMeal = (dayIndex, meal) => {
         setEditingData({ dayIndex, meal: { ...meal } });
@@ -80,16 +39,22 @@ const DesperdicioDetalhesScreen = ({ navigation }) => {
         if (editingData.dayIndex !== null && editingData.meal) {
             const updatedDadosSemana = [...dadosSemana];
             const dayMeals = updatedDadosSemana[editingData.dayIndex].meals;
+            const date = updatedDadosSemana[editingData.dayIndex].fullDate;
+
+            let novasRefeicoes;
 
             if (editingData.meal.id && !dayMeals.find(m => m.id === editingData.meal.id)) {
-                updatedDadosSemana[editingData.dayIndex].meals = [...dayMeals, editingData.meal];
+                // Adicionar nova refeição
+                novasRefeicoes = [...dayMeals, editingData.meal];
             } else {
-                updatedDadosSemana[editingData.dayIndex].meals = dayMeals.map(m =>
+                // Editar refeição existente
+                novasRefeicoes = dayMeals.map(m =>
                     m.id === editingData.meal.id ? editingData.meal : m
                 );
             }
 
-            setDadosSemana(updatedDadosSemana);
+            // Atualizar via contexto para sincronizar com a tela de pesquisa
+            atualizarRefeicoesDia(date, novasRefeicoes);
         }
         setEditModalVisible(false);
         setEditingData({ dayIndex: null, meal: null });
@@ -107,9 +72,11 @@ const DesperdicioDetalhesScreen = ({ navigation }) => {
     };
 
     const handleDeleteMeal = (dayIndex, mealId) => {
-        const updatedDadosSemana = [...dadosSemana];
-        updatedDadosSemana[dayIndex].meals = updatedDadosSemana[dayIndex].meals.filter(m => m.id !== mealId);
-        setDadosSemana(updatedDadosSemana);
+        const date = dadosSemana[dayIndex].fullDate;
+        const novasRefeicoes = dadosSemana[dayIndex].meals.filter(m => m.id !== mealId);
+
+        // Atualizar via contexto
+        atualizarRefeicoesDia(date, novasRefeicoes);
         setEditModalVisible(false);
     };
 
@@ -158,6 +125,7 @@ const DesperdicioDetalhesScreen = ({ navigation }) => {
                             const x = 20 + (dayIndex * (barWidth + barSpacing));
                             const totalDayValue = day.meals.reduce((sum, meal) => sum + meal.value, 0);
                             let currentY = chartHeight;
+                            const isSelected = dayIndex === selectedDayIndex;
 
                             return (
                                 <React.Fragment key={dayIndex}>
@@ -177,6 +145,7 @@ const DesperdicioDetalhesScreen = ({ navigation }) => {
                                                     fill={meal.color}
                                                     rx="5"
                                                     ry="5"
+                                                    opacity={isSelected ? 1 : 0.7}
                                                 />
                                                 {barHeight > 25 && (
                                                     <SvgText
@@ -195,25 +164,27 @@ const DesperdicioDetalhesScreen = ({ navigation }) => {
                                     })}
 
                                     {/* Labels dos dias */}
-                                    <SvgText
-                                        x={x + barWidth / 2}
-                                        y={chartHeight + 20}
-                                        textAnchor="middle"
-                                        fill="#FFFFFF"
-                                        fontSize="11"
-                                        fontWeight="bold"
-                                    >
-                                        {day.dia}
-                                    </SvgText>
-                                    <SvgText
-                                        x={x + barWidth / 2}
-                                        y={chartHeight + 38}
-                                        textAnchor="middle"
-                                        fill="rgba(255, 255, 255, 0.8)"
-                                        fontSize="10"
-                                    >
-                                        {day.date}
-                                    </SvgText>
+                                    <TouchableOpacity onPress={() => setSelectedDayIndex(dayIndex)}>
+                                        <SvgText
+                                            x={x + barWidth / 2}
+                                            y={chartHeight + 20}
+                                            textAnchor="middle"
+                                            fill={isSelected ? "#FFD700" : "#FFFFFF"}
+                                            fontSize="11"
+                                            fontWeight="bold"
+                                        >
+                                            {day.dia}
+                                        </SvgText>
+                                        <SvgText
+                                            x={x + barWidth / 2}
+                                            y={chartHeight + 38}
+                                            textAnchor="middle"
+                                            fill={isSelected ? "#FFD700" : "rgba(255, 255, 255, 0.8)"}
+                                            fontSize="10"
+                                        >
+                                            {day.date}
+                                        </SvgText>
+                                    </TouchableOpacity>
                                 </React.Fragment>
                             );
                         })}
@@ -240,6 +211,70 @@ const DesperdicioDetalhesScreen = ({ navigation }) => {
     };
 
     const uniqueMealTypes = getUniqueMealTypes();
+
+    // Nova função para renderizar os detalhes do dia selecionado
+    const renderDayDetails = () => {
+        return (
+            <View style={styles.dayDetailsContainer}>
+                <Text style={styles.dayDetailsTitle}>
+                    Detalhes do Dia - {selectedDay.dia} {selectedDay.date}
+                </Text>
+
+                <View style={styles.dayDetailsCard}>
+                    <View style={styles.dayDetailsHeader}>
+                        <Text style={styles.dayDetailsTotal}>
+                            Total do Dia: {totalSelectedDay.toFixed(1)} kg
+                        </Text>
+                    </View>
+
+                    {/* Lista de refeições com detalhes */}
+                    {selectedDay.meals.map((meal, index) => (
+                        <View key={index} style={styles.mealDetailItem}>
+                            <View style={styles.mealDetailLeft}>
+                                <View style={[styles.mealColorDot, { backgroundColor: meal.color }]} />
+                                <View>
+                                    <Text style={styles.mealName}>{meal.name}</Text>
+                                    <Text style={styles.mealPercentage}>
+                                        {((meal.value / totalSelectedDay) * 100).toFixed(1)}% do total
+                                    </Text>
+                                </View>
+                            </View>
+                            <View style={styles.mealDetailRight}>
+                                <Text style={styles.mealValue}>{meal.value} kg</Text>
+                                <TouchableOpacity
+                                    style={styles.smallEditButton}
+                                    onPress={() => handleEditMeal(selectedDayIndex, meal)}
+                                >
+                                    <Ionicons name="create-outline" size={16} color="#D32F2F" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    ))}
+
+                    {/* Gráfico de pizza simplificado */}
+                    <View style={styles.pizzaChartContainer}>
+                        <Text style={styles.pizzaChartTitle}>Distribuição por Refeição</Text>
+                        <View style={styles.pizzaChart}>
+                            {selectedDay.meals.map((meal, index) => {
+                                const percentage = (meal.value / totalSelectedDay) * 100;
+                                return (
+                                    <View key={index} style={styles.pizzaSegment}>
+                                        <View style={styles.pizzaSegmentInfo}>
+                                            <View style={[styles.pizzaColor, { backgroundColor: meal.color }]} />
+                                            <Text style={styles.pizzaSegmentText}>
+                                                {meal.name}: {percentage.toFixed(1)}%
+                                            </Text>
+                                        </View>
+                                        <Text style={styles.pizzaSegmentValue}>{meal.value}kg</Text>
+                                    </View>
+                                );
+                            })}
+                        </View>
+                    </View>
+                </View>
+            </View>
+        );
+    };
 
     return (
         <View style={styles.container}>
@@ -279,7 +314,7 @@ const DesperdicioDetalhesScreen = ({ navigation }) => {
                     {/* Título do card */}
                     <View style={styles.cardHeader}>
                         <Text style={styles.cardTitle}>Desperdício</Text>
-                        <Text style={styles.cardDate}>27/10/2025</Text>
+                        <Text style={styles.cardDate}>Semana 24/10 - 28/10</Text>
                     </View>
 
                     {/* Legenda compacta no topo */}
@@ -294,21 +329,49 @@ const DesperdicioDetalhesScreen = ({ navigation }) => {
 
                     {/* Gráfico */}
                     {renderBarChart()}
+
+                    {/* Indicador do dia selecionado */}
+                    <View style={styles.selectedDayIndicator}>
+                        <Text style={styles.selectedDayText}>
+                            Visualizando: <Text style={styles.selectedDayHighlight}>{selectedDay.dia} - {selectedDay.date}</Text>
+                        </Text>
+                        <Text style={styles.selectedDayTotal}>
+                            Total: {totalSelectedDay.toFixed(1)} kg
+                        </Text>
+                    </View>
                 </View>
+
+                {/* Detalhes do dia selecionado */}
+                {renderDayDetails()}
 
                 {/* Cards de detalhes - agora em fundo branco */}
                 <View style={styles.detailsSection}>
-                    <Text style={styles.detailsSectionTitle}>Detalhes por Dia</Text>
+                    <Text style={styles.detailsSectionTitle}>Todos os Dias</Text>
                     {dadosSemana.map((day, dayIndex) => (
-                        <View key={dayIndex} style={styles.dayCard}>
+                        <View key={dayIndex} style={[
+                            styles.dayCard,
+                            dayIndex === selectedDayIndex && styles.selectedDayCard
+                        ]}>
                             <View style={styles.dayCardHeader}>
                                 <Text style={styles.dayCardTitle}>{day.dia} - {day.date}</Text>
-                                <TouchableOpacity
-                                    style={styles.addDayMealButton}
-                                    onPress={() => handleAddMeal(dayIndex)}
-                                >
-                                    <Ionicons name="add" size={20} color="#D32F2F" />
-                                </TouchableOpacity>
+                                <View style={styles.dayCardActions}>
+                                    <TouchableOpacity
+                                        style={styles.selectDayButton}
+                                        onPress={() => setSelectedDayIndex(dayIndex)}
+                                    >
+                                        <Ionicons
+                                            name="eye"
+                                            size={18}
+                                            color={dayIndex === selectedDayIndex ? "#FFD700" : "#666"}
+                                        />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={styles.addDayMealButton}
+                                        onPress={() => handleAddMeal(dayIndex)}
+                                    >
+                                        <Ionicons name="add" size={20} color="#D32F2F" />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                             {day.meals.map((meal, mealIndex) => (
                                 <View key={mealIndex} style={styles.dayMealItem}>
@@ -587,6 +650,143 @@ const styles = StyleSheet.create({
         color: 'rgba(255,255,255,0.8)',
         fontWeight: '600',
     },
+    // Indicador do dia selecionado
+    selectedDayIndicator: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 15,
+        padding: 12,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        borderRadius: 10,
+    },
+    selectedDayText: {
+        fontSize: 14,
+        color: '#FFFFFF',
+        fontWeight: '500',
+    },
+    selectedDayHighlight: {
+        fontWeight: 'bold',
+        color: '#FFD700',
+    },
+    selectedDayTotal: {
+        fontSize: 14,
+        color: '#FFD700',
+        fontWeight: 'bold',
+    },
+    // Detalhes do dia selecionado
+    dayDetailsContainer: {
+        marginBottom: 20,
+        paddingHorizontal: 20,
+    },
+    dayDetailsTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 15,
+    },
+    dayDetailsCard: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        padding: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    dayDetailsHeader: {
+        marginBottom: 15,
+        paddingBottom: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0F0F0',
+    },
+    dayDetailsTotal: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#D32F2F',
+        textAlign: 'center',
+    },
+    mealDetailItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F8F8F8',
+    },
+    mealDetailLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    mealColorDot: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        marginRight: 12,
+    },
+    mealName: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#333',
+    },
+    mealPercentage: {
+        fontSize: 12,
+        color: '#666',
+        marginTop: 2,
+    },
+    mealDetailRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    smallEditButton: {
+        padding: 6,
+        marginLeft: 10,
+    },
+    // Gráfico de pizza simplificado
+    pizzaChartContainer: {
+        marginTop: 15,
+        paddingTop: 15,
+        borderTopWidth: 1,
+        borderTopColor: '#F0F0F0',
+    },
+    pizzaChartTitle: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 10,
+        textAlign: 'center',
+    },
+    pizzaChart: {
+        // Estilos para o gráfico de pizza
+    },
+    pizzaSegment: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 8,
+    },
+    pizzaSegmentInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    pizzaColor: {
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        marginRight: 8,
+    },
+    pizzaSegmentText: {
+        fontSize: 13,
+        color: '#333',
+    },
+    pizzaSegmentValue: {
+        fontSize: 13,
+        fontWeight: 'bold',
+        color: '#D32F2F',
+    },
+    // Seção de detalhes de todos os dias
     detailsSection: {
         marginBottom: 20,
         paddingHorizontal: 20,
@@ -609,6 +809,10 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 3,
     },
+    selectedDayCard: {
+        borderWidth: 2,
+        borderColor: '#FFD700',
+    },
     dayCardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -619,6 +823,14 @@ const styles = StyleSheet.create({
         fontSize: 17,
         fontWeight: 'bold',
         color: '#333',
+    },
+    dayCardActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    selectDayButton: {
+        padding: 6,
+        marginRight: 8,
     },
     addDayMealButton: {
         padding: 8,

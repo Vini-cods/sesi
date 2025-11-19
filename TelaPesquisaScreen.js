@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, StyleSheet, StatusBar, TouchableOpacity, ScrollView, Dimensions, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Circle, G, Text as SvgText, Line, Polyline, Rect } from 'react-native-svg';
+import { useData } from './DataContext';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -9,138 +10,24 @@ const TelaPesquisaScreen = ({ navigation }) => {
     const [searchText, setSearchText] = useState('');
     const [selectedDate, setSelectedDate] = useState('28/10/2025');
 
-    // Dados completos para cada dia do mês
-    const monthData = {
-        '28/10/2025': {
-            decibelData: [
-                { label: 'Manhã', value: 45, color: '#FFD700' },
-                { label: 'Tarde', value: 65, color: '#4CAF50' },
-                { label: 'Noite', value: 85, color: '#D32F2F' }
-            ],
-            lineChartData: [
-                { time: '08:00', decibels: 40 },
-                { time: '10:00', decibels: 45 },
-                { time: '12:00', decibels: 75 },
-                { time: '14:00', decibels: 65 },
-                { time: '16:00', decibels: 55 },
-                { time: '18:00', decibels: 85 },
-                { time: '20:00', decibels: 70 }
-            ],
-            totalKg: 10,
-            note: 'Neste dia, foi observado que os alunos estavam fazendo muito barulho no telefone. O nível de ruído chegou muito alto e automaticamente do acabão, quando o ambiente bastante desconfortável. Devido a isso, um aluno com transtorno do espectro autista (TEA) pareceu ser muito pior. Não conseguia permanecer no local por conta do excesso de barulho.',
-            // Dados de desperdício adicionados
-            wasteData: [
-                { id: 1, name: 'Café de Manhã', value: 1.9, color: '#FFC107' },
-                { id: 2, name: 'Almoço', value: 3.3, color: '#4CAF50' },
-                { id: 3, name: 'Café de Tarde', value: 0.7, color: '#2196F3' },
-            ]
-        },
-        '27/10/2025': {
-            decibelData: [
-                { label: 'Manhã', value: 50, color: '#FFD700' },
-                { label: 'Tarde', value: 60, color: '#4CAF50' },
-                { label: 'Noite', value: 65, color: '#D32F2F' }
-            ],
-            lineChartData: [
-                { time: '08:00', decibels: 45 },
-                { time: '10:00', decibels: 50 },
-                { time: '12:00', decibels: 70 },
-                { time: '14:00', decibels: 60 },
-                { time: '16:00', decibels: 55 },
-                { time: '18:00', decibels: 65 },
-                { time: '20:00', decibels: 58 }
-            ],
-            totalKg: 7.7,
-            note: 'Dia com ruído moderado. Os alunos estavam mais calmos durante as refeições.',
-            wasteData: [
-                { id: 1, name: 'Café de Manhã', value: 1.5, color: '#FFC107' },
-                { id: 2, name: 'Almoço', value: 2.2, color: '#4CAF50' },
-                { id: 3, name: 'Café de Tarde', value: 1.2, color: '#2196F3' },
-            ]
-        },
-        '26/10/2025': {
-            decibelData: [
-                { label: 'Manhã', value: 55, color: '#FFD700' },
-                { label: 'Tarde', value: 70, color: '#4CAF50' },
-                { label: 'Noite', value: 75, color: '#D32F2F' }
-            ],
-            lineChartData: [
-                { time: '08:00', decibels: 50 },
-                { time: '10:00', decibels: 55 },
-                { time: '12:00', decibels: 80 },
-                { time: '14:00', decibels: 70 },
-                { time: '16:00', decibels: 65 },
-                { time: '18:00', decibels: 75 },
-                { time: '20:00', decibels: 68 }
-            ],
-            totalKg: 13.3,
-            note: 'Pico no horário do almoço com muito desperdício de comida. Barulho excessivo no refeitório.',
-            wasteData: [
-                { id: 1, name: 'Café de Manhã', value: 2.1, color: '#FFC107' },
-                { id: 2, name: 'Almoço', value: 2.8, color: '#4CAF50' },
-                { id: 3, name: 'Café de Tarde', value: 0.9, color: '#2196F3' },
-            ]
-        },
-        '25/10/2025': {
-            decibelData: [
-                { label: 'Manhã', value: 40, color: '#FFD700' },
-                { label: 'Tarde', value: 55, color: '#4CAF50' },
-                { label: 'Noite', value: 60, color: '#D32F2F' }
-            ],
-            lineChartData: [
-                { time: '08:00', decibels: 35 },
-                { time: '10:00', decibels: 40 },
-                { time: '12:00', decibels: 65 },
-                { time: '14:00', decibels: 55 },
-                { time: '16:00', decibels: 50 },
-                { time: '18:00', decibels: 60 },
-                { time: '20:00', decibels: 52 }
-            ],
-            totalKg: 8.2,
-            note: 'Dia tranquilo com baixo nível de ruído e desperdício controlado.',
-            wasteData: [
-                { id: 1, name: 'Café de Manhã', value: 1.2, color: '#FFC107' },
-                { id: 2, name: 'Almoço', value: 3.1, color: '#4CAF50' },
-                { id: 3, name: 'Café de Tarde', value: 1.0, color: '#2196F3' },
-            ]
-        },
-        '24/10/2025': {
-            decibelData: [
-                { label: 'Manhã', value: 60, color: '#FFD700' },
-                { label: 'Tarde', value: 75, color: '#4CAF50' },
-                { label: 'Noite', value: 80, color: '#D32F2F' }
-            ],
-            lineChartData: [
-                { time: '08:00', decibels: 55 },
-                { time: '10:00', decibels: 60 },
-                { time: '12:00', decibels: 85 },
-                { time: '14:00', decibels: 75 },
-                { time: '16:00', decibels: 70 },
-                { time: '18:00', decibels: 80 },
-                { time: '20:00', decibels: 72 }
-            ],
-            totalKg: 11.5,
-            note: 'Muito movimento e barulho durante todo o dia. Alto índice de desperdício.',
-            wasteData: [
-                { id: 1, name: 'Café de Manhã', value: 1.8, color: '#FFC107' },
-                { id: 2, name: 'Almoço', value: 2.5, color: '#4CAF50' },
-                { id: 3, name: 'Café de Tarde', value: 0.8, color: '#2196F3' },
-            ]
-        }
-    };
+    // Use o contexto para obter os dados sincronizados
+    const { dadosSemana, calcularTotaisParaPesquisa } = useData();
 
-    // Calendário com dias do mês
-    const monthDays = [
-        { day: 24, kg: 11.5, decibels: 80, date: '24/10/2025' },
-        { day: 25, kg: 8.2, decibels: 60, date: '25/10/2025' },
-        { day: 26, kg: 13.3, decibels: 75, date: '26/10/2025' },
-        { day: 27, kg: 7.7, decibels: 65, date: '27/10/2025' },
-        { day: 28, kg: 10.0, decibels: 85, date: '28/10/2025' },
-    ];
+    // Obter dados da pesquisa baseados nos dados atuais
+    const monthData = calcularTotaisParaPesquisa();
+
+    // Calendário com dias do mês - agora baseado nos dados reais
+    const monthDays = dadosSemana.map(dia => ({
+        day: parseInt(dia.date.split('/')[0]),
+        kg: dia.meals.reduce((sum, meal) => sum + meal.value, 0).toFixed(1),
+        decibels: Math.max(...monthData[dia.fullDate]?.decibelData.map(item => item.value) || 0),
+        date: dia.fullDate
+    }));
 
     const currentData = monthData[selectedDate] || monthData['28/10/2025'];
+    const selectedDayData = dadosSemana.find(dia => dia.fullDate === selectedDate);
 
-    // Função para renderizar o gráfico de barras empilhadas (copiada da DesperdicioDetalhesScreen)
+    // Função para renderizar o gráfico de barras empilhadas
     const renderBarChart = () => {
         const chartHeight = 200;
         const chartWidth = screenWidth - 100;
@@ -244,6 +131,48 @@ const TelaPesquisaScreen = ({ navigation }) => {
         );
     };
 
+    // Nova função para renderizar os detalhes das refeições
+    const renderMealDetails = () => {
+        if (!selectedDayData) return null;
+
+        const totalDay = selectedDayData.meals.reduce((sum, meal) => sum + meal.value, 0);
+
+        return (
+            <View style={styles.mealDetailsContainer}>
+                <Text style={styles.mealDetailsTitle}>Detalhes das Refeições - {selectedDate}</Text>
+
+                <View style={styles.mealDetailsCard}>
+                    {selectedDayData.meals.map((meal, index) => {
+                        const percentage = totalDay > 0 ? (meal.value / totalDay) * 100 : 0;
+
+                        return (
+                            <View key={index} style={styles.mealDetailItem}>
+                                <View style={styles.mealDetailLeft}>
+                                    <View style={[styles.mealColorDot, { backgroundColor: meal.color }]} />
+                                    <View>
+                                        <Text style={styles.mealName}>{meal.name}</Text>
+                                        <Text style={styles.mealPercentage}>
+                                            {percentage.toFixed(1)}% do total
+                                        </Text>
+                                    </View>
+                                </View>
+                                <View style={styles.mealDetailRight}>
+                                    <Text style={styles.mealValue}>{meal.value} kg</Text>
+                                </View>
+                            </View>
+                        );
+                    })}
+
+                    {/* Total do dia */}
+                    <View style={styles.dayTotal}>
+                        <Text style={styles.dayTotalLabel}>Total do dia:</Text>
+                        <Text style={styles.dayTotalValue}>{totalDay.toFixed(1)} kg</Text>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+
     // Função para obter tipos únicos de refeição
     const getUniqueMealTypes = () => {
         const mealNames = [];
@@ -266,7 +195,6 @@ const TelaPesquisaScreen = ({ navigation }) => {
     const uniqueMealTypes = getUniqueMealTypes();
 
     const renderDonutChart = () => {
-        // ... (código existente do donut chart)
         const size = 180;
         const strokeWidth = 20;
         const radius = (size - strokeWidth) / 2;
@@ -341,7 +269,6 @@ const TelaPesquisaScreen = ({ navigation }) => {
     };
 
     const renderLineChart = () => {
-        // ... (código existente do line chart)
         const maxY = 100;
         const chartHeight = 120;
         const chartWidth = screenWidth - 100;
@@ -451,7 +378,6 @@ const TelaPesquisaScreen = ({ navigation }) => {
     };
 
     const renderCalendar = () => {
-        // ... (código existente do calendário)
         const currentDate = new Date();
         const currentDay = currentDate.getDate();
         const currentMonth = currentDate.getMonth();
@@ -511,7 +437,6 @@ const TelaPesquisaScreen = ({ navigation }) => {
     };
 
     const renderDailyInfo = () => {
-        // ... (código existente das informações diárias)
         return (
             <View style={styles.dailyInfoContainer}>
                 <Text style={styles.dailyInfoTitle}>Informações do Dia - {selectedDate}</Text>
@@ -594,6 +519,9 @@ const TelaPesquisaScreen = ({ navigation }) => {
                         {renderBarChart()}
                     </View>
                 </View>
+
+                {/* NOVA SEÇÃO: Detalhes das Refeições */}
+                {renderMealDetails()}
 
                 {/* Gráfico de Linha - Decibéis ao Longo do Dia */}
                 <View style={styles.section}>
@@ -747,7 +675,7 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 3,
     },
-    // Estilos para o gráfico de barras (copiados da DesperdicioDetalhesScreen)
+    // Estilos para o gráfico de barras
     chartContainer: {
         flexDirection: 'row',
     },
@@ -788,6 +716,83 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: '#333',
         fontWeight: '500',
+    },
+    // NOVOS ESTILOS: Detalhes das Refeições
+    mealDetailsContainer: {
+        marginBottom: 20,
+    },
+    mealDetailsTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#D32F2F',
+        marginBottom: 12,
+    },
+    mealDetailsCard: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        padding: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    mealDetailItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F8F8F8',
+    },
+    mealDetailLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    mealColorDot: {
+        width: 16,
+        height: 16,
+        borderRadius: 8,
+        marginRight: 12,
+    },
+    mealName: {
+        fontSize: 15,
+        fontWeight: '500',
+        color: '#333',
+    },
+    mealPercentage: {
+        fontSize: 12,
+        color: '#666',
+        marginTop: 2,
+    },
+    mealDetailRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    mealValue: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#D32F2F',
+    },
+    dayTotal: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 15,
+        paddingTop: 15,
+        borderTopWidth: 1,
+        borderTopColor: '#E0E0E0',
+    },
+    dayTotalLabel: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#333',
+    },
+    dayTotalValue: {
+        fontSize: 17,
+        fontWeight: 'bold',
+        color: '#D32F2F',
     },
     // Gráfico de Linha
     chartArea: {
