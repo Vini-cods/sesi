@@ -42,7 +42,7 @@ const TelaSolScreen = ({ navigation, route }) => {
                 contentContainerStyle={styles.scrollContent}
             >
                 <Text style={styles.sectionTitle}>Como esta Hoje?</Text>
-                
+
                 <View style={styles.figurinhasContainer}>
                     {figurinhasAgrupadas.map((dupla, index) => (
                         <View key={index} style={styles.duplaContainer}>
@@ -80,7 +80,10 @@ const TelaSolScreen = ({ navigation, route }) => {
                     <Ionicons name="search" size={28} color="#FFFFFF" />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.navItem}>
+                <TouchableOpacity
+                    style={styles.navItem}
+                    onPress={() => navigation.navigate('Perfil')}
+                >
                     <Ionicons name="person" size={28} color="#FFFFFF" />
                 </TouchableOpacity>
             </View>

@@ -12,6 +12,9 @@ import DesperdicioDetalhesScreen from './DesperdicioDetalhesScreen';
 import TelaSolScreen from './TelaSolScreen';
 import TelaDecibeisDetalhes from './TelaDecibeisDetalhes';
 import { DataProvider } from './DataContext';
+import DiaMundialContraDesperdicioScreen from './DiaMundialContraDesperdicioScreen';
+import PerfilScreen from './PerfilScreen';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -45,6 +48,11 @@ export default function App() {
           <Stack.Screen name="DesperdicioDetalhes" component={DesperdicioDetalhesScreen} />
           <Stack.Screen name="TelaSol" component={TelaSolScreen} />
           <Stack.Screen name="TelaDecibeisDetalhes" component={TelaDecibeisDetalhes} />
+          <Stack.Screen
+            name="DiaMundialContraDesperdicio"
+            component={DiaMundialContraDesperdicioScreen}
+          />
+          <Stack.Screen name="Perfil" component={PerfilScreen} />
         </Stack.Navigator>
         <StatusBar style="auto" />
       </NavigationContainer>

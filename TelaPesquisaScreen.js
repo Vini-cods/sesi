@@ -582,7 +582,10 @@ const TelaPesquisaScreen = ({ navigation }) => {
                     <Ionicons name="search" size={28} color="#FFFFFF" />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.navItem}>
+                <TouchableOpacity
+                    style={styles.navItem}
+                    onPress={() => navigation.navigate('Perfil')}
+                >
                     <Ionicons name="person" size={28} color="#FFFFFF" />
                 </TouchableOpacity>
             </View>

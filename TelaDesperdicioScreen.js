@@ -49,15 +49,18 @@ const TelaDesperdicioScreen = ({ navigation, route }) => {
                         />
                     </TouchableOpacity>
 
-                    {/* Card Contra Desperdício */}
-                    <View style={styles.cardContra}>
+                    {/* Card Contra Desperdício - AGORA É UM BOTÃO */}
+                    <TouchableOpacity
+                        style={styles.cardContra}
+                        onPress={() => navigation.navigate('DiaMundialContraDesperdicio')}
+                    >
                         <View style={styles.circleDecoration} />
                         <View style={styles.badge}>
                             <Text style={styles.badgeText}>DIA MUNDIAL</Text>
                             <Text style={styles.badgeTitle}>CONTRA O</Text>
                             <Text style={styles.badgeSubtitle}>DESPERDÍCIO</Text>
                         </View>
-                    </View>
+                    </TouchableOpacity>
                 </View>
 
                 {/* Gráfico de Decibéis - AGORA É UMA IMAGEM E UM BOTÃO QUE NAVEGA PARA DETALHES */}
@@ -123,7 +126,10 @@ const TelaDesperdicioScreen = ({ navigation, route }) => {
                     <Ionicons name="search" size={28} color="#FFFFFF" />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.navItem}>
+                <TouchableOpacity
+                    style={styles.navItem}
+                    onPress={() => navigation.navigate('Perfil')}
+                >
                     <Ionicons name="person" size={28} color="#FFFFFF" />
                 </TouchableOpacity>
             </View>
