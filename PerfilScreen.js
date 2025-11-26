@@ -35,7 +35,7 @@ const PerfilScreen = ({ navigation }) => {
 
                     <Text style={styles.userName}>Danielle da Silva Rogério</Text>
                     <Text style={styles.userRole}>Nutricionista - SESI</Text>
-                    <Text style={styles.userEmail}>danielle.silva@sesi.com.br</Text>
+                    <Text style={styles.userEmail}>danielle.silva@portalsesisp.org.br</Text>
 
                     <TouchableOpacity style={styles.editProfileButton}>
                         <Text style={styles.editProfileText}>Editar Perfil</Text>
