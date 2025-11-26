@@ -7,13 +7,74 @@ const { width: screenWidth } = Dimensions.get('window');
 const TelaDesperdicioScreen = ({ navigation, route }) => {
     // Estado para armazenar a figurinha selecionada
     const [figurinhaSelecionada, setFigurinhaSelecionada] = useState(require('./img/sol.png'));
+    
+    // Estado para armazenar o card do Dia Mundial selecionado
+    const [cardDiaMundial, setCardDiaMundial] = useState(null);
 
-    // Atualiza a figurinha quando retorna da tela de seleção
+    // Atualiza os estados quando retorna das telas
     useEffect(() => {
         if (route.params?.figurinhaSelecionada) {
             setFigurinhaSelecionada(route.params.figurinhaSelecionada.source);
         }
-    }, [route.params?.figurinhaSelecionada]);
+        
+        // Atualiza o card do Dia Mundial quando retorna da tela
+        if (route.params?.cardDiaMundialSelecionado) {
+            setCardDiaMundial(route.params.cardDiaMundialSelecionado);
+        }
+    }, [route.params?.figurinhaSelecionada, route.params?.cardDiaMundialSelecionado]);
+
+    // Renderiza o card do Dia Mundial - padrão ou selecionado
+    const renderCardDiaMundial = () => {
+        // Se há um card selecionado, renderiza ele
+        if (cardDiaMundial) {
+            return (
+                <TouchableOpacity
+                    style={[
+                        styles.cardContra,
+                        cardDiaMundial.color === 'red' ? styles.cardRedSelecionado : styles.cardWhiteSelecionado
+                    ]}
+                    onPress={() => navigation.navigate('DiaMundialContraDesperdicio')}
+                >
+                    <View style={[
+                        styles.cardIconContainerSelecionado,
+                        cardDiaMundial.color === 'white' && styles.cardIconRed
+                    ]}>
+                        <Ionicons 
+                            name={cardDiaMundial.icon} 
+                            size={32} 
+                            color={cardDiaMundial.color === 'red' ? '#FFF' : '#D32F2F'} 
+                        />
+                    </View>
+                    <Text style={[
+                        styles.cardTitleSelecionado,
+                        cardDiaMundial.color === 'white' && styles.cardTitleRed
+                    ]}>
+                        {cardDiaMundial.title}
+                    </Text>
+                    <Text style={
+                        cardDiaMundial.color === 'red' ? styles.cardDescription : styles.cardDescriptionDark
+                    }>
+                        {cardDiaMundial.description}
+                    </Text>
+                </TouchableOpacity>
+            );
+        }
+
+        // Se não há card selecionado, renderiza o card padrão
+        return (
+            <TouchableOpacity
+                style={styles.cardContra}
+                onPress={() => navigation.navigate('DiaMundialContraDesperdicio')}
+            >
+                <View style={styles.circleDecoration} />
+                <View style={styles.badge}>
+                    <Text style={styles.badgeText}>DIA MUNDIAL</Text>
+                    <Text style={styles.badgeTitle}>CONTRA O</Text>
+                    <Text style={styles.badgeSubtitle}>DESPERDÍCIO</Text>
+                </View>
+            </TouchableOpacity>
+        );
+    };
 
     return (
         <View style={styles.container}>
@@ -37,7 +98,7 @@ const TelaDesperdicioScreen = ({ navigation, route }) => {
             >
                 {/* Cards principais */}
                 <View style={styles.mainCards}>
-                    {/* Card Desperdício - AGORA É UM BOTÃO COM IMAGEM */}
+                    {/* Card Desperdício */}
                     <TouchableOpacity
                         style={styles.cardDesperdicio}
                         onPress={() => navigation.navigate('DesperdicioDetalhes')}
@@ -49,21 +110,11 @@ const TelaDesperdicioScreen = ({ navigation, route }) => {
                         />
                     </TouchableOpacity>
 
-                    {/* Card Contra Desperdício - AGORA É UM BOTÃO */}
-                    <TouchableOpacity
-                        style={styles.cardContra}
-                        onPress={() => navigation.navigate('DiaMundialContraDesperdicio')}
-                    >
-                        <View style={styles.circleDecoration} />
-                        <View style={styles.badge}>
-                            <Text style={styles.badgeText}>DIA MUNDIAL</Text>
-                            <Text style={styles.badgeTitle}>CONTRA O</Text>
-                            <Text style={styles.badgeSubtitle}>DESPERDÍCIO</Text>
-                        </View>
-                    </TouchableOpacity>
+                    {/* Card Contra Desperdício - Agora dinâmico */}
+                    {renderCardDiaMundial()}
                 </View>
 
-                {/* Gráfico de Decibéis - AGORA É UMA IMAGEM E UM BOTÃO QUE NAVEGA PARA DETALHES */}
+                {/* Gráfico de Decibéis */}
                 <View style={styles.section}>
                     <Text style={styles.sectionLabel}>Decibéis</Text>
                     <TouchableOpacity
@@ -78,12 +129,12 @@ const TelaDesperdicioScreen = ({ navigation, route }) => {
                     </TouchableOpacity>
                 </View>
 
-                {/* Espaçamento adicional para descer os elementos */}
+                {/* Espaçamento adicional */}
                 <View style={styles.spacing} />
 
                 {/* Cards inferiores */}
                 <View style={styles.bottomCards}>
-                    {/* Card Emoji - AGORA É UM BOTÃO QUE NAVEGA PARA TELA DO SOL */}
+                    {/* Card Emoji */}
                     <TouchableOpacity
                         style={styles.cardEmoji}
                         onPress={() => navigation.navigate('TelaSol')}
@@ -95,7 +146,7 @@ const TelaDesperdicioScreen = ({ navigation, route }) => {
                         />
                     </TouchableOpacity>
 
-                    {/* Card Imagem - AGORA É UM BOTÃO */}
+                    {/* Card Imagem */}
                     <TouchableOpacity
                         style={styles.cardImage}
                         onPress={() => navigation.navigate('Pesquisa')}
@@ -107,7 +158,6 @@ const TelaDesperdicioScreen = ({ navigation, route }) => {
                         />
                     </TouchableOpacity>
                 </View>
-
             </ScrollView>
 
             {/* Barra inferior de navegação */}
@@ -209,22 +259,7 @@ const styles = StyleSheet.create({
         width: '130%',
         height: '150%',
     },
-    cardTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#FFFFFF',
-        zIndex: 1,
-    },
-    barChartIcon: {
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        gap: 8,
-    },
-    miniBar: {
-        width: 16,
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        borderRadius: 4,
-    },
+    // Card Contra Desperdício - Padrão
     cardContra: {
         flex: 1,
         backgroundColor: '#FFFFFF',
@@ -266,6 +301,48 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: 'bold',
         color: '#333',
+        textAlign: 'center',
+    },
+    // Estilos para cards selecionados
+    cardRedSelecionado: {
+        backgroundColor: '#D32F2F',
+    },
+    cardWhiteSelecionado: {
+        backgroundColor: '#FFF',
+    },
+    cardIconContainerSelecionado: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    cardIconRed: {
+        backgroundColor: '#FFEBEE',
+    },
+    cardTitleSelecionado: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    cardTitleRed: {
+        color: '#D32F2F',
+    },
+    cardDescription: {
+        fontSize: 11,
+        color: '#FFF',
+        lineHeight: 16,
+        opacity: 0.95,
+        textAlign: 'center',
+    },
+    cardDescriptionDark: {
+        fontSize: 11,
+        color: '#666',
+        lineHeight: 16,
         textAlign: 'center',
     },
     section: {
