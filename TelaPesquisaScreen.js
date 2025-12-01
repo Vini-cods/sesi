@@ -384,9 +384,10 @@ const TelaPesquisaScreen = ({ navigation }) => {
         const currentYear = currentDate.getFullYear();
 
         const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro'];
 
-        const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        // Apenas dias úteis da semana
+        const daysOfWeek = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
 
         return (
             <View style={styles.calendarContainer}>
@@ -396,9 +397,11 @@ const TelaPesquisaScreen = ({ navigation }) => {
 
                 <View style={styles.calendarDaysHeader}>
                     {daysOfWeek.map((day, index) => (
-                        <Text key={index} style={styles.calendarDayHeader}>
-                            {day}
-                        </Text>
+                        <View key={index} style={styles.calendarDayHeaderContainer}>
+                            <Text style={styles.calendarDayHeader}>
+                                {day}
+                            </Text>
+                        </View>
                     ))}
                 </View>
 
@@ -497,7 +500,7 @@ const TelaPesquisaScreen = ({ navigation }) => {
 
                 {/* Calendário */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionLabel}>Calendário Outubro 2025</Text>
+                    <Text style={styles.sectionLabel}>Calendário Novembro 2025</Text>
                     {renderCalendar()}
                 </View>
 
@@ -824,19 +827,23 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginBottom: 10,
     },
-    calendarDayHeader: {
+    calendarDayHeaderContainer: {
         flex: 1,
-        textAlign: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    calendarDayHeader: {
         fontSize: 12,
         fontWeight: '600',
         color: '#666',
+        textAlign: 'center',
     },
     calendarGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
     },
     calendarDay: {
-        width: '14.28%',
+        width: '20%', // 100% dividido por 5 dias (Seg-Sex)
         aspectRatio: 1,
         justifyContent: 'center',
         alignItems: 'center',
